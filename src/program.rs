@@ -25,6 +25,49 @@ impl Program {
             cards: vec![card],
         }
     }
+
+    pub fn go_right() -> Program {
+        let card = Card::go_right();
+        Program {
+            name: "Go right".to_string(),
+            initial_card: 0,
+            cards: vec![card],
+        }
+    }
+
+    pub fn light_the_world() -> Program {
+        let left = Card {
+            name: "LEFT".to_string(),
+            tape_on: Instruction {
+                write_symbol: true,
+                move_direction: Direction::Left,
+                next_card: Some(0),
+            },
+            tape_off: Instruction {
+                write_symbol: true,
+                move_direction: Direction::Right,
+                next_card: Some(1),
+            },
+        };
+        let right = Card {
+            name: "RIGHT".to_string(),
+            tape_on: Instruction {
+                write_symbol: true,
+                move_direction: Direction::Right,
+                next_card: Some(1),
+            },
+            tape_off: Instruction {
+                write_symbol: true,
+                move_direction: Direction::Left,
+                next_card: Some(0),
+            },
+        };
+        Program {
+            name: "Light the world".to_string(),
+            initial_card: 0,
+            cards: vec![left, right],
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -61,6 +104,22 @@ impl Card {
             },
             tape_off: Instruction {
                 write_symbol: true,
+                move_direction: Direction::Right,
+                next_card: Some(0),
+            },
+        }
+    }
+
+    fn go_right() -> Card {
+        Card {
+            name: "Go right".to_string(),
+            tape_on: Instruction {
+                write_symbol: true,
+                move_direction: Direction::Left,
+                next_card: Some(0),
+            },
+            tape_off: Instruction {
+                write_symbol: false,
                 move_direction: Direction::Right,
                 next_card: Some(0),
             },

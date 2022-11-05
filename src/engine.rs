@@ -55,16 +55,8 @@ impl Engine {
         return self.current_position;
     }
 
-    pub fn render_tape(&self, from: i64, to: i64) -> String {
-        let mut string = String::new();
-        for pos in from..to {
-            if self.positions_on.contains(&pos) {
-                string.push('■');
-            } else {
-                string.push('□');
-            }
-        }
-        return string;
+    pub fn get_tape_at(&self, position: i64) -> bool {
+        self.positions_on.contains(&position)
     }
 }
 
