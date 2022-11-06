@@ -1,16 +1,30 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 #[derive(Clone)]
 pub struct Level {
     pub name: String,
-    pub initial_state: HashSet<i64>,
-    pub target_state: HashMap<i64, bool>,
+    pub description: String,
+    pub cases: Vec<TestCase>,
+}
+
+#[derive(Clone)]
+pub struct TestCase {
+    pub initial_tape: HashSet<i64>,
+    pub target: Option<Target>,
+}
+
+#[derive(Clone)]
+pub enum Target {
+    TapeExact { tape: HashSet<i64> },
 }
 
 pub fn sandbox() -> Level {
     Level {
         name: "Sandbox".to_string(),
-        initial_state: HashSet::new(),
-        target_state: HashMap::new(),
+        description: "".to_string(),
+        cases: vec![TestCase {
+            initial_tape: HashSet::new(),
+            target: None,
+        }],
     }
 }

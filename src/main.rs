@@ -35,7 +35,9 @@ fn main() {
     }
 }
 
-fn level() {}
+fn level() {
+    let term = Term::stdout();
+}
 
 fn run() -> Result<()> {
     let level = sandbox();

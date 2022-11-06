@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use Direction::{Left, Right};
 
 use crate::level::Level;
-use crate::program::{Card, Direction, Program};
+use crate::program::{Direction, Program};
 
 pub struct Engine {
     positions_on: HashSet<i64>,
@@ -15,8 +15,8 @@ pub struct Engine {
 
 impl Engine {
     pub fn new(level: &Level, program: Program) -> Engine {
-        let current_card = Some(program.initial_card.clone());
-        let positions_on = level.initial_state.clone();
+        let current_card = Some(program.initial_card);
+        let positions_on = level.cases[0].initial_tape.clone();
         let current_position = 0;
         Engine {
             current_card_index: current_card,
@@ -63,9 +63,8 @@ impl Engine {
 mod test {
     use crate::engine::Engine;
     use crate::level::sandbox;
-    use crate::program::Direction::Right;
     use crate::program::{Card, Instruction, Program};
-    use std::rc::Rc;
+    use crate::program::Direction::Right;
 
     #[test]
     fn test_just_stop() {
