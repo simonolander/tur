@@ -1,21 +1,23 @@
 use std::fmt::Debug;
 use std::time::Duration;
-use std::{env, fs, io::Result, thread};
+use std::{fs, io::Result, thread};
 
 use clap::{Parser, Subcommand};
 use console::Term;
+use directories::ProjectDirs;
 
 use crate::engine::Engine;
-use crate::level::sandbox;
+use crate::level::{sandbox, Level};
+use crate::level_dto::LevelDto;
 use crate::program::Program;
 use crate::render::render;
 
 mod engine;
 mod level;
 mod level_dto;
+mod levels;
 mod program;
 mod render;
-mod levels;
 
 #[derive(Parser)]
 struct Cli {
@@ -25,24 +27,45 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
-    Level,
+    Level {
+        #[command(subcommand)]
+        command: LevelCommand,
+    },
     Run,
+}
+
+#[derive(Subcommand)]
+enum LevelCommand {
+    List,
 }
 
 fn main() {
     let cli = Cli::parse();
     match cli.command {
-        Command::Level => level().unwrap(),
+        Command::Level { command } => level(command).unwrap(),
         Command::Run => run().unwrap(),
     }
 }
 
-fn level() -> Result<()> {
-    init_directory()?;
+fn level(command: LevelCommand) -> Result<()> {
+    match command {
+        List => level_list()?,
+    }
     Ok(())
 }
 
-fn init_directory() -> Result<()> {
+fn level_list() -> Result<()> {
+    let term = Term::stdout();
+    let level_dir = project_dirs().data_dir().join("level");
+    let dir = fs::read_dir(level_dir)?;
+    term.write_line("Levels")?;
+    term.write_line("------")?;
+    for entry in dir {
+        let file_contents = fs::read_to_string(entry?.path())?;
+        let dto: LevelDto = serde_yaml::from_str(&file_contents).unwrap();
+        let level: Level = dto.into();
+        term.write_line(&level.name)?;
+    }
     Ok(())
 }
 
@@ -58,4 +81,8 @@ fn run() -> Result<()> {
         thread::sleep(Duration::from_millis(100));
     }
     Ok(())
+}
+
+fn project_dirs() -> ProjectDirs {
+    ProjectDirs::from("org", "simonolander", "Tur").unwrap()
 }
