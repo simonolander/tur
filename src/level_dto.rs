@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use TargetDto::TapeExact;
+use TargetDto::{Position, TapeExact};
 
 use crate::level::{Level, Target, TestCase};
 
@@ -36,12 +36,15 @@ impl Into<Level> for LevelDto {
 struct TestCaseDto {
     #[serde(default)]
     initial_tape: Vec<i64>,
+    #[serde(default)]
+    target: Option<TargetDto>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 #[serde(tag = "type")]
 enum TargetDto {
     TapeExact { tape: Vec<i64> },
+    Position { position: i64 },
 }
 
 impl From<&TargetDto> for Target {
@@ -50,14 +53,17 @@ impl From<&TargetDto> for Target {
             TapeExact { tape } => Target::TapeExact {
                 tape: tape.iter().copied().collect(),
             },
+            Position { position } => Target::Position {
+                position: *position,
+            },
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::level_dto::TargetDto::{Position, TapeExact};
     use crate::level_dto::{LevelDto, TestCaseDto};
-    use crate::level_dto::TargetDto::TapeExact;
 
     #[test]
     fn deserialize_sandbox() {
@@ -80,17 +86,47 @@ mod tests {
             cases: vec![
                 TestCaseDto {
                     initial_tape: vec![3],
+                    target: None,
                 },
                 TestCaseDto {
                     initial_tape: vec![8],
+                    target: None,
                 },
                 TestCaseDto {
                     initial_tape: vec![0],
+                    target: None,
                 },
             ],
             target: Some(TapeExact { tape: Vec::new() }),
         };
         let string = include_str!("../res/level/night_time.yaml");
+        let actual: LevelDto = serde_yaml::from_str(string).unwrap();
+        assert_eq!(expected, actual)
+    }
+
+    #[test]
+    fn deserialize_the_moth() {
+        let expected = LevelDto {
+            name: "The moth".to_string(),
+            description: "At some position there is a light on. Halt the program on that position."
+                .to_string(),
+            cases: vec![
+                TestCaseDto {
+                    initial_tape: vec![18],
+                    target: Some(Position { position: 18 }),
+                },
+                TestCaseDto {
+                    initial_tape: vec![-13],
+                    target: Some(Position { position: -13 }),
+                },
+                TestCaseDto {
+                    initial_tape: vec![0],
+                    target: Some(Position { position: 0 }),
+                },
+            ],
+            target: None,
+        };
+        let string = include_str!("../res/level/the_moth.yaml");
         let actual: LevelDto = serde_yaml::from_str(string).unwrap();
         assert_eq!(expected, actual)
     }

@@ -16,6 +16,7 @@ pub struct TestCase {
 #[derive(Clone)]
 pub enum Target {
     TapeExact { tape: HashSet<i64> },
+    Position { position: i64 },
 }
 
 pub fn sandbox() -> Level {

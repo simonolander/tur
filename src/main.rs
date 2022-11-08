@@ -1,5 +1,6 @@
+use std::fmt::Debug;
 use std::time::Duration;
-use std::{io::Result, thread};
+use std::{env, fs, io::Result, thread};
 
 use clap::{Parser, Subcommand};
 use console::Term;
@@ -14,6 +15,7 @@ mod level;
 mod level_dto;
 mod program;
 mod render;
+mod levels;
 
 #[derive(Parser)]
 struct Cli {
@@ -30,13 +32,18 @@ enum Command {
 fn main() {
     let cli = Cli::parse();
     match cli.command {
-        Command::Level => level(),
+        Command::Level => level().unwrap(),
         Command::Run => run().unwrap(),
     }
 }
 
-fn level() {
-    let term = Term::stdout();
+fn level() -> Result<()> {
+    init_directory()?;
+    Ok(())
+}
+
+fn init_directory() -> Result<()> {
+    Ok(())
 }
 
 fn run() -> Result<()> {
