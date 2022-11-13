@@ -1,6 +1,7 @@
 use std::fmt::Debug;
+use std::path::PathBuf;
 use std::time::Duration;
-use std::{fs, io::Result, thread};
+use std::{fs, io::Result, process, thread};
 
 use clap::{Parser, Subcommand};
 use console::Term;
@@ -37,6 +38,7 @@ enum Command {
 #[derive(Subcommand)]
 enum LevelCommand {
     List,
+    Create,
 }
 
 fn main() {
@@ -49,14 +51,21 @@ fn main() {
 
 fn level(command: LevelCommand) -> Result<()> {
     match command {
-        List => level_list()?,
+        LevelCommand::List => level_list(),
+        LevelCommand::Create => level_create(),
     }
-    Ok(())
 }
 
 fn level_list() -> Result<()> {
     let term = Term::stdout();
-    let level_dir = project_dirs().data_dir().join("level");
+    let level_dir = level_dir();
+    if !level_dir.exists() {
+        term.write_line(&format!(
+            "Initiating levels directory at {}",
+            &level_dir.to_str().unwrap()
+        ))?;
+        fs::create_dir_all(&level_dir)?
+    }
     let dir = fs::read_dir(level_dir)?;
     term.write_line("Levels")?;
     term.write_line("------")?;
@@ -66,6 +75,14 @@ fn level_list() -> Result<()> {
         let level: Level = dto.into();
         term.write_line(&level.name)?;
     }
+    Ok(())
+}
+
+fn level_create() -> Result<()> {
+    let term = Term::stdout();
+    let level_dir = level_dir();
+    let mut result = process::Command::new("vim").spawn()?;
+    result.wait()?;
     Ok(())
 }
 
@@ -85,4 +102,8 @@ fn run() -> Result<()> {
 
 fn project_dirs() -> ProjectDirs {
     ProjectDirs::from("org", "simonolander", "Tur").unwrap()
+}
+
+fn level_dir() -> PathBuf {
+    project_dirs().data_dir().join("level")
 }
