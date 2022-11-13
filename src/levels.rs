@@ -7,7 +7,7 @@ fn sandbox() -> Level {
         .into()
 }
 
-fn night_time() -> Level {
+pub fn night_time() -> Level {
     serde_yaml::from_str::<LevelDto>(include_str!("../res/level/night_time.yaml"))
         .unwrap()
         .into()

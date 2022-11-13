@@ -7,13 +7,13 @@ use clap::{Parser, Subcommand};
 use console::Term;
 use directories::ProjectDirs;
 
-use crate::engine::Engine;
+use crate::execution::TestCaseExecution;
 use crate::level::{sandbox, Level};
 use crate::level_dto::LevelDto;
 use crate::program::Program;
 use crate::render::render;
 
-mod engine;
+mod execution;
 mod level;
 mod level_dto;
 mod levels;
@@ -89,7 +89,7 @@ fn level_create() -> Result<()> {
 fn run() -> Result<()> {
     let level = sandbox();
     let program = Program::light_the_world();
-    let mut engine = Engine::new(&level, program);
+    let mut engine = TestCaseExecution::new(&level, program);
     let term = Term::stdout();
     render(&term, &engine)?;
     while !engine.is_terminated() {

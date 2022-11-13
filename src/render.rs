@@ -2,9 +2,9 @@ use std::io::Result;
 
 use console::Term;
 
-use crate::engine::Engine;
+use crate::execution::TestCaseExecution;
 
-pub fn render(term: &Term, engine: &Engine) -> Result<()> {
+pub fn render(term: &Term, engine: &TestCaseExecution) -> Result<()> {
     let pos = engine.get_current_position();
     let from = if pos < 0 {
         (pos / 16 * 16) - 32

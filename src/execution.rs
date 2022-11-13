@@ -5,7 +5,38 @@ use Direction::{Left, Right};
 use crate::level::Level;
 use crate::program::{Direction, Program};
 
-pub struct Engine {
+pub struct LevelExecution {
+    level: Level,
+    program: Program,
+    case_executions: Vec<TestCaseExecution>,
+}
+
+impl LevelExecution {
+    fn new(level: Level, program: Program) -> LevelExecution {
+        LevelExecution {
+            level,
+            program,
+            case_executions: Vec::new(),
+        }
+    }
+
+    fn step(&mut self) {
+        if self.is_terminated() {
+            return;
+        }
+    }
+
+    pub fn is_terminated(&self) -> bool {
+        self.case_executions.len() == self.level.cases.len()
+            && self
+                .case_executions
+                .last()
+                .map(TestCaseExecution::is_terminated)
+                .unwrap_or(true)
+    }
+}
+
+pub struct TestCaseExecution {
     positions_on: HashSet<i64>,
     current_card_index: Option<usize>,
     current_position: i64,
@@ -13,12 +44,12 @@ pub struct Engine {
     steps: u64,
 }
 
-impl Engine {
-    pub fn new(level: &Level, program: Program) -> Engine {
+impl TestCaseExecution {
+    pub fn new(level: &Level, program: Program) -> TestCaseExecution {
         let current_card = Some(program.initial_card);
         let positions_on = level.cases[0].initial_tape.clone();
         let current_position = 0;
-        Engine {
+        TestCaseExecution {
             current_card_index: current_card,
             positions_on,
             current_position,
@@ -47,12 +78,22 @@ impl Engine {
         }
     }
 
+    pub fn run(&mut self, max_steps: u64) -> bool {
+        for _n in 0..max_steps {
+            self.step();
+            if self.is_terminated() {
+                return true;
+            }
+        }
+        false
+    }
+
     pub fn is_terminated(&self) -> bool {
         self.current_card_index.is_none()
     }
 
     pub fn get_current_position(&self) -> i64 {
-        return self.current_position;
+        self.current_position
     }
 
     pub fn get_tape_at(&self, position: i64) -> bool {
@@ -61,10 +102,11 @@ impl Engine {
 }
 
 mod test {
-    use crate::engine::Engine;
+    use crate::execution::TestCaseExecution;
     use crate::level::sandbox;
-    use crate::program::{Card, Instruction, Program};
+    use crate::levels::night_time;
     use crate::program::Direction::Right;
+    use crate::program::{Card, Instruction, Program};
 
     #[test]
     fn test_just_stop() {
@@ -84,9 +126,34 @@ mod test {
             initial_card: 0,
             cards: vec![card],
         };
-        let mut engine = Engine::new(&level, program);
+        let mut engine = TestCaseExecution::new(&level, program);
         assert!(!engine.is_terminated());
         engine.step();
         assert!(engine.is_terminated());
+    }
+
+    #[test]
+    fn night_time_solve() {
+        let level = night_time();
+        let program = Program {
+            name: "".to_string(),
+            initial_card: 0,
+            cards: vec![Card {
+                name: "".to_string(),
+                tape_on: Instruction {
+                    write_symbol: false,
+                    move_direction: Right,
+                    next_card: None,
+                },
+                tape_off: Instruction {
+                    write_symbol: false,
+                    move_direction: Right,
+                    next_card: Some(0),
+                },
+            }],
+        };
+        let mut engine = TestCaseExecution::new(&level, program);
+        let terminated = engine.run(100);
+        assert!(terminated);
     }
 }
