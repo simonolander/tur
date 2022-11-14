@@ -1,38 +1,46 @@
+use std::borrow::BorrowMut;
 use std::collections::HashSet;
 
 use Direction::{Left, Right};
 
-use crate::level::Level;
+use crate::level::{Level, TestCase};
 use crate::program::{Direction, Program};
 
 pub struct LevelExecution {
     level: Level,
     program: Program,
-    case_executions: Vec<TestCaseExecution>,
+    executions: Vec<TestCaseExecution>,
 }
 
 impl LevelExecution {
     fn new(level: Level, program: Program) -> LevelExecution {
+        let executions = level.cases.iter().map(TestCaseExecution::from).collect();
         LevelExecution {
             level,
             program,
-            case_executions: Vec::new(),
+            executions,
         }
     }
 
-    fn step(&mut self) {
+    pub fn step(&mut self) {
         if self.is_terminated() {
             return;
         }
+        let program = &self.program;
+        if let Some(ex) = self.current_execution() {
+            ex.step(&program)
+        }
+    }
+
+    fn current_execution(&mut self) -> Option<&mut TestCaseExecution> {
+        self.executions.iter_mut().find(|e| !e.is_terminated())
     }
 
     pub fn is_terminated(&self) -> bool {
-        self.case_executions.len() == self.level.cases.len()
-            && self
-                .case_executions
-                .last()
-                .map(TestCaseExecution::is_terminated)
-                .unwrap_or(true)
+        self.executions
+            .last()
+            .map(TestCaseExecution::is_terminated)
+            .unwrap_or(true)
     }
 }
 
@@ -40,27 +48,28 @@ pub struct TestCaseExecution {
     positions_on: HashSet<i64>,
     current_card_index: Option<usize>,
     current_position: i64,
-    program: Program,
     steps: u64,
 }
 
+impl From<&TestCase> for TestCaseExecution {
+    fn from(tc: &TestCase) -> Self {
+        TestCaseExecution::new(tc.initial_tape.clone())
+    }
+}
+
 impl TestCaseExecution {
-    pub fn new(level: &Level, program: Program) -> TestCaseExecution {
-        let current_card = Some(program.initial_card);
-        let positions_on = level.cases[0].initial_tape.clone();
-        let current_position = 0;
+    pub fn new(positions_on: HashSet<i64>) -> TestCaseExecution {
         TestCaseExecution {
-            current_card_index: current_card,
             positions_on,
-            current_position,
-            program,
+            current_card_index: Some(0),
+            current_position: 0,
             steps: 0,
         }
     }
 
-    pub fn step(&mut self) {
+    pub fn step(&mut self, program: &Program) {
         if let Some(index) = self.current_card_index {
-            let card = self.program.cards.get(index).unwrap();
+            let card = program.cards.get(index).unwrap();
             let current_position = &self.current_position;
             let on = self.positions_on.contains(current_position);
             let instruction = if on { &card.tape_on } else { &card.tape_off };
@@ -78,9 +87,9 @@ impl TestCaseExecution {
         }
     }
 
-    pub fn run(&mut self, max_steps: u64) -> bool {
+    pub fn run(&mut self, program: &Program, max_steps: u64) -> bool {
         for _n in 0..max_steps {
-            self.step();
+            self.step(program);
             if self.is_terminated() {
                 return true;
             }
@@ -126,9 +135,9 @@ mod test {
             initial_card: 0,
             cards: vec![card],
         };
-        let mut engine = TestCaseExecution::new(&level, program);
+        let mut engine = TestCaseExecution::new(level.cases[0].initial_tape.clone());
         assert!(!engine.is_terminated());
-        engine.step();
+        engine.step(&program);
         assert!(engine.is_terminated());
     }
 
@@ -152,7 +161,7 @@ mod test {
                 },
             }],
         };
-        let mut engine = TestCaseExecution::new(&level, program);
+        let mut engine = TestCaseExecution::new(level.cases[0].initial_tape.clone());
         let terminated = engine.run(100);
         assert!(terminated);
     }
