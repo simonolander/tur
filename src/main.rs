@@ -21,6 +21,7 @@ mod level_dto;
 mod levels;
 mod program;
 mod render;
+mod program_dto;
 
 #[derive(Parser)]
 struct Cli {
@@ -126,7 +127,7 @@ fn level_create() -> Result<()> {
 fn run() -> Result<()> {
     let level = sandbox();
     // let program = Program::light_the_world();
-    let program = Program::light_left();
+    let program = Program::light_right();
     let mut engine = TestCaseExecution::new(level.cases[0].initial_tape.clone(), program);
     let term = Term::stdout();
     render(&term, &engine)?;
