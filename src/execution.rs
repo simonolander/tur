@@ -14,7 +14,7 @@ pub struct LevelExecution {
 
 impl LevelExecution {
     fn new(level: Level, program: Program) -> LevelExecution {
-        let executions = level.cases.iter().map(TestCaseExecution::from).collect();
+        let executions = level.cases.iter().map(|tc| TestCaseExecution::new(tc.initial_tape.clone(), program.clone())).collect();
         LevelExecution {
             level,
             program,
@@ -26,9 +26,8 @@ impl LevelExecution {
         if self.is_terminated() {
             return;
         }
-        let program = &self.program;
         if let Some(ex) = self.current_execution() {
-            ex.step(&program)
+            ex.step()
         }
     }
 
@@ -49,27 +48,23 @@ pub struct TestCaseExecution {
     current_card_index: Option<usize>,
     current_position: i64,
     steps: u64,
-}
-
-impl From<&TestCase> for TestCaseExecution {
-    fn from(tc: &TestCase) -> Self {
-        TestCaseExecution::new(tc.initial_tape.clone())
-    }
+    program: Program,
 }
 
 impl TestCaseExecution {
-    pub fn new(positions_on: HashSet<i64>) -> TestCaseExecution {
+    pub fn new(positions_on: HashSet<i64>, program: Program) -> TestCaseExecution {
         TestCaseExecution {
             positions_on,
             current_card_index: Some(0),
             current_position: 0,
             steps: 0,
+            program,
         }
     }
 
-    pub fn step(&mut self, program: &Program) {
+    pub fn step(&mut self) {
         if let Some(index) = self.current_card_index {
-            let card = program.cards.get(index).unwrap();
+            let card = self.program.cards.get(index).unwrap();
             let current_position = &self.current_position;
             let on = self.positions_on.contains(current_position);
             let instruction = if on { &card.tape_on } else { &card.tape_off };
@@ -87,9 +82,9 @@ impl TestCaseExecution {
         }
     }
 
-    pub fn run(&mut self, program: &Program, max_steps: u64) -> bool {
+    pub fn run(&mut self, max_steps: u64) -> bool {
         for _n in 0..max_steps {
-            self.step(program);
+            self.step();
             if self.is_terminated() {
                 return true;
             }
@@ -114,8 +109,8 @@ mod test {
     use crate::execution::TestCaseExecution;
     use crate::level::sandbox;
     use crate::levels::night_time;
-    use crate::program::Direction::Right;
     use crate::program::{Card, Instruction, Program};
+    use crate::program::Direction::Right;
 
     #[test]
     fn test_just_stop() {
@@ -137,7 +132,7 @@ mod test {
         };
         let mut engine = TestCaseExecution::new(level.cases[0].initial_tape.clone());
         assert!(!engine.is_terminated());
-        engine.step(&program);
+        engine.step();
         assert!(engine.is_terminated());
     }
 

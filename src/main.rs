@@ -89,11 +89,11 @@ fn level_create() -> Result<()> {
 fn run() -> Result<()> {
     let level = sandbox();
     let program = Program::light_the_world();
-    let mut engine = TestCaseExecution::new(level.cases[0].initial_tape.clone());
+    let mut engine = TestCaseExecution::new(level.cases[0].initial_tape.clone(), program);
     let term = Term::stdout();
     render(&term, &engine)?;
     while !engine.is_terminated() {
-        engine.step(&program);
+        engine.step();
         render(&term, &engine)?;
         thread::sleep(Duration::from_millis(100));
     }
