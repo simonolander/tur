@@ -13,6 +13,7 @@ use crate::level::{Level, sandbox};
 use crate::level_dto::LevelDto;
 use crate::levels::builtins;
 use crate::program::Program;
+use crate::program_dto::ProgramDto;
 use crate::render::render;
 
 mod execution;
@@ -53,6 +54,7 @@ enum ProgramCommand {
     Create {
         name: String
     },
+    List,
 }
 
 fn main() {
@@ -67,6 +69,7 @@ fn main() {
 fn program(command: ProgramCommand) -> Result<()> {
     match command {
         ProgramCommand::Create { name } => program_create(&name),
+        ProgramCommand::List => program_list(),
     }
 }
 
@@ -77,10 +80,25 @@ fn program_create(name: &str) -> Result<()> {
         term.write_line(&format!("Program {} already exists", name))?;
         return Ok(());
     }
-    create_dir_all(file_path)?;
     process::Command::new("vim")
+        .arg(&file_path)
         .spawn()?
         .wait()?;
+    Ok(())
+}
+
+fn program_list() -> Result<()> {
+    let term = Term::stdout();
+    let dir = fs::read_dir(program_dir()?)?;
+    term.write_line("Program")?;
+    term.write_line("-------")?;
+    for entry in dir {
+        let file_contents = fs::read_to_string(entry?.path())?;
+        let dto: ProgramDto = serde_yaml::from_str(&file_contents).unwrap();
+        if let Ok(program) = Program::try_from(dto) {
+            term.write_line(&program.name)?;
+        }
+    }
     Ok(())
 }
 
