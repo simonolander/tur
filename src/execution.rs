@@ -130,7 +130,7 @@ mod test {
             initial_card: 0,
             cards: vec![card],
         };
-        let mut engine = TestCaseExecution::new(level.cases[0].initial_tape.clone());
+        let mut engine = TestCaseExecution::new(level.cases[0].initial_tape.clone(), program);
         assert!(!engine.is_terminated());
         engine.step();
         assert!(engine.is_terminated());
@@ -156,7 +156,7 @@ mod test {
                 },
             }],
         };
-        let mut engine = TestCaseExecution::new(level.cases[0].initial_tape.clone());
+        let mut engine = TestCaseExecution::new(level.cases[0].initial_tape.clone(), program);
         let terminated = engine.run(100);
         assert!(terminated);
     }

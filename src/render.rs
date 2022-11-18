@@ -4,14 +4,14 @@ use console::Term;
 
 use crate::execution::TestCaseExecution;
 
+const WINDOW_SIZE: i64 = 64;
+const WINDOW_OFFSET: i64 = 32;
+const WORD_SIZE: i64 = 16;
+
 pub fn render(term: &Term, engine: &TestCaseExecution) -> Result<()> {
     let pos = engine.get_current_position();
-    let from = if pos < 0 {
-        (pos / 16 * 16) - 32
-    } else {
-        (pos / 16 * 16) - 16
-    };
-    let to = from + 49;
+    let from = from(pos);
+    let to = from + WINDOW_SIZE + 1;
 
     // Render position
     term.clear_line()?;
@@ -31,20 +31,45 @@ pub fn render(term: &Term, engine: &TestCaseExecution) -> Result<()> {
 
     // Render ticks
     let mut tick_line = String::new();
-    tick_line += &format!("{:<16}", '|');
-    tick_line += &format!("{:<16}", '|');
-    tick_line += &format!("{:<16}", '|');
-    tick_line += &format!("{:<16}", '|');
+    for _ in 0..=WINDOW_SIZE / 16 {
+        tick_line += &format!("{:<16}", '|');
+    }
     term.clear_line()?;
     term.write_line(&tick_line)?;
     let mut number_line = String::new();
-    number_line += &format!("{:<16}", from);
-    number_line += &format!("{:<16}", from + 16);
-    number_line += &format!("{:<16}", from + 32);
-    number_line += &format!("{:<16}", from + 48);
+    for n in 0..=WINDOW_SIZE / 16 {
+        number_line += &format!("{:<16}", from + n * 16);
+    }
     term.clear_line()?;
     term.write_line(&number_line)?;
 
     // Reset
     term.move_cursor_up(4)
 }
+
+fn from(pos: i64) -> i64 {
+    let effective_position = pos + WINDOW_OFFSET;
+    if effective_position < 0 && effective_position % WINDOW_SIZE != 0 {
+        (effective_position / WINDOW_SIZE - 1) * WINDOW_SIZE - WINDOW_OFFSET
+    } else {
+        effective_position / WINDOW_SIZE * WINDOW_SIZE - WINDOW_OFFSET
+    }
+}
+
+
+mod test {
+    use crate::render::{from, WINDOW_OFFSET, WINDOW_SIZE, WORD_SIZE};
+
+    #[test]
+    fn test_from() {
+        for n in -2..3 {
+            let expected = -WINDOW_OFFSET + WINDOW_SIZE * n;
+            for m in vec![0, -1, 1, -WINDOW_OFFSET, -WINDOW_OFFSET + WINDOW_SIZE - 1] {
+                let pos = m + WINDOW_SIZE * n;
+                let actual = from(pos);
+                assert_eq!(actual, expected, "Expected from({}) to be {}, but was {}", pos, expected, actual);
+            }
+        }
+    }
+}
+

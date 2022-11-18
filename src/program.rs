@@ -15,10 +15,19 @@ impl Program {
         }
     }
 
-    pub fn light_to_the_right() -> Program {
+    pub fn light_right() -> Program {
         let card = Card::light_right();
         Program {
             name: "Light to the right".to_string(),
+            initial_card: 0,
+            cards: vec![card],
+        }
+    }
+
+    pub fn light_left() -> Program {
+        let card = Card::light_left();
+        Program {
+            name: "Light to the left".to_string(),
             initial_card: 0,
             cards: vec![card],
         }
@@ -103,6 +112,22 @@ impl Card {
             tape_off: Instruction {
                 write_symbol: true,
                 move_direction: Direction::Right,
+                next_card: Some(0),
+            },
+        }
+    }
+
+    fn light_left() -> Card {
+        Card {
+            name: "Light left".to_string(),
+            tape_on: Instruction {
+                write_symbol: true,
+                move_direction: Direction::Left,
+                next_card: Some(0),
+            },
+            tape_off: Instruction {
+                write_symbol: true,
+                move_direction: Direction::Left,
                 next_card: Some(0),
             },
         }
