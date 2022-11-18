@@ -18,3 +18,11 @@ fn moth() -> Level {
         .unwrap()
         .into()
 }
+
+pub fn builtins() -> Vec<Level> {
+    vec![
+        sandbox(),
+        night_time(),
+        moth()
+    ]
+}
