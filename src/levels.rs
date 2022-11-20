@@ -23,6 +23,6 @@ pub fn builtins() -> Vec<Level> {
     vec![
         sandbox(),
         night_time(),
-        moth()
+        moth(),
     ]
 }

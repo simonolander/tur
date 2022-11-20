@@ -62,8 +62,8 @@ impl From<&TargetDto> for Target {
 
 #[cfg(test)]
 mod tests {
-    use crate::level_dto::TargetDto::{Position, TapeExact};
     use crate::level_dto::{LevelDto, TestCaseDto};
+    use crate::level_dto::TargetDto::{Position, TapeExact};
 
     #[test]
     fn deserialize_sandbox() {

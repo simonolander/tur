@@ -6,7 +6,6 @@ use crate::execution::TestCaseExecution;
 
 const WINDOW_SIZE: i64 = 64;
 const WINDOW_OFFSET: i64 = 32;
-const WORD_SIZE: i64 = 16;
 
 pub fn render(term: &Term, engine: &TestCaseExecution) -> Result<()> {
     let pos = engine.get_current_position();
@@ -58,7 +57,7 @@ fn from(pos: i64) -> i64 {
 
 
 mod test {
-    use crate::render::{from, WINDOW_OFFSET, WINDOW_SIZE, WORD_SIZE};
+    use crate::render::{from, WINDOW_OFFSET, WINDOW_SIZE};
 
     #[test]
     fn test_from() {

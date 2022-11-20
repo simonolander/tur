@@ -43,7 +43,10 @@ enum Command {
         #[command(subcommand)]
         command: ProgramCommand,
     },
-    Run,
+    Run {
+        program: String,
+        level: String,
+    },
 }
 
 #[derive(Subcommand)]
@@ -65,7 +68,7 @@ fn main() {
     match cli.command {
         Command::Level { command } => level(command),
         Command::Program { command } => program(command),
-        Command::Run => run(),
+        Command::Run { program, level } => run(),
     }.unwrap();
 }
 
@@ -118,8 +121,7 @@ fn program_list() -> Result<()> {
     }
     if !table.is_empty() {
         table.printstd();
-    }
-    else {
+    } else {
         Term::stdout().write_line("No programs found. You can create programs by running:")?;
         Term::stdout().write_line("")?;
         Term::stdout().write_line("    tur program create <program name>")?;
