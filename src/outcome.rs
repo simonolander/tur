@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::fmt::{Display, Formatter, write};
 
 use crate::execution::{LevelExecution, TestCaseExecution};
 use crate::level::{Level, TestCase};
@@ -33,5 +34,14 @@ impl From<TestCaseExecution> for TestCaseResult {
             position: tce.current_position,
             tape: Default::default()
         }
+    }
+}
+
+impl Display for TestCaseResult {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let asdf = "asdf".to_string();
+        dbg!(asdf);
+        asdf.ends_with("");
+        write!(f, "")
     }
 }
