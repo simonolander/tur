@@ -148,27 +148,20 @@ fn level(command: LevelCommand) -> Result<()> {
 }
 
 fn level_list() -> Result<()> {
-    let term = Term::stdout();
     let level_dir = level_dir()?;
-    if !level_dir.exists() {
-        term.write_line(&format!(
-            "Initiating levels directory at {}",
-            &level_dir.to_string_lossy()
-        ))?;
-        create_dir_all(&level_dir)?
-    }
     let dir = read_dir(level_dir)?;
-    term.write_line("Levels")?;
-    term.write_line("------")?;
+    let mut table = Table::new();
+    table.set_titles(row!["Name", "Solved", "Type"]);
     for level in builtins() {
-        term.write_line(&level.name)?;
+        table.add_row(row![level.name, false, "builtin"]);
     }
     for entry in dir {
         let file_contents = fs::read_to_string(entry?.path())?;
         let dto: LevelDto = serde_yaml::from_str(&file_contents)?;
         let level: Level = dto.into();
-        term.write_line(&level.name)?;
+        table.add_row(row![level.name, false, "builtin"]);
     }
+    table.printstd();
     Ok(())
 }
 
