@@ -6,9 +6,9 @@ use crate::level::Level;
 use crate::program::{Direction, Program};
 
 pub struct LevelExecution {
-    level: Level,
-    program: Program,
-    executions: Vec<TestCaseExecution>,
+    pub level: Level,
+    pub program: Program,
+    pub executions: Vec<TestCaseExecution>,
 }
 
 impl LevelExecution {

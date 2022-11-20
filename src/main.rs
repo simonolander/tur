@@ -175,6 +175,8 @@ fn run(program_name: &str, level_name: &str) -> Result<()> {
         .ok_or_else(|| Error::msg(format!("Program {} not found", program_name)))?;
     let mut execution = LevelExecution::new(level, program);
     let term = Term::stdout();
+    term.write_line(&format!("Level: {}", execution.level.name))?;
+    term.write_line(&format!("Program: {}", execution.program.name))?;
     render(&term, &execution.current_execution().unwrap())?;
     while !execution.is_terminated() {
         thread::sleep(Duration::from_millis(1000));
@@ -202,8 +204,16 @@ fn find_program(name: &str) -> Result<Option<Program>> {
         let program = Program::try_from(dto)?;
         return Ok(Some(program));
     }
+    for program in programs::builtins() {
+        if program.name == name {
+            return Ok(Some(program));
+        }
+    }
 
-    Ok(None)
+    let maybe_builtin = programs::builtins()
+        .into_iter()
+        .find(|program| program.name == name);
+    Ok(maybe_builtin)
 }
 
 fn project_dirs() -> Result<ProjectDirs> {

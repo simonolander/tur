@@ -1,8 +1,7 @@
-use std::io::Result;
-
+use anyhow::Result;
 use console::Term;
 
-use crate::execution::TestCaseExecution;
+use crate::execution::{LevelExecution, TestCaseExecution};
 
 const WINDOW_SIZE: i64 = 64;
 const WINDOW_OFFSET: i64 = 32;
@@ -43,7 +42,8 @@ pub fn render(term: &Term, engine: &TestCaseExecution) -> Result<()> {
     term.write_line(&number_line)?;
 
     // Reset
-    term.move_cursor_up(4)
+    term.move_cursor_up(4)?;
+    Ok(())
 }
 
 fn from(pos: i64) -> i64 {
