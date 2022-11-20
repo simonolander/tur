@@ -11,10 +11,10 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use console::Term;
 use directories::ProjectDirs;
-use prettytable::{format, row, Table};
+use prettytable::{row, Table};
 
-use crate::execution::{LevelExecution, TestCaseExecution};
-use crate::level::{Level, sandbox};
+use crate::execution::LevelExecution;
+use crate::level::Level;
 use crate::level_dto::LevelDto;
 use crate::levels::builtins;
 use crate::program::Program;
@@ -28,6 +28,7 @@ mod levels;
 mod program;
 mod render;
 mod program_dto;
+mod programs;
 
 #[derive(Parser)]
 struct Cli {
@@ -126,6 +127,9 @@ fn program_list() -> Result<()> {
             }
         };
         table.add_row(row![program.name, "ok"]);
+    }
+    for program in programs::builtins() {
+        table.add_row(row![program.name, "builtin"]);
     }
     if !table.is_empty() {
         table.printstd();

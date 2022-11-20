@@ -5,78 +5,6 @@ pub struct Program {
     pub cards: Vec<Card>,
 }
 
-impl Program {
-    pub fn just_stop() -> Program {
-        let card = Card::terminate();
-        Program {
-            name: "Just stop".to_string(),
-            initial_card: 0,
-            cards: vec![card],
-        }
-    }
-
-    pub fn light_right() -> Program {
-        let card = Card::light_right();
-        Program {
-            name: "Light to the right".to_string(),
-            initial_card: 0,
-            cards: vec![card],
-        }
-    }
-
-    pub fn light_left() -> Program {
-        let card = Card::light_left();
-        Program {
-            name: "Light to the left".to_string(),
-            initial_card: 0,
-            cards: vec![card],
-        }
-    }
-
-    pub fn go_right() -> Program {
-        let card = Card::go_right();
-        Program {
-            name: "Go right".to_string(),
-            initial_card: 0,
-            cards: vec![card],
-        }
-    }
-
-    pub fn light_the_world() -> Program {
-        let left = Card {
-            name: "LEFT".to_string(),
-            tape_on: Instruction {
-                write_symbol: true,
-                move_direction: Direction::Left,
-                next_card: Some(0),
-            },
-            tape_off: Instruction {
-                write_symbol: true,
-                move_direction: Direction::Right,
-                next_card: Some(1),
-            },
-        };
-        let right = Card {
-            name: "RIGHT".to_string(),
-            tape_on: Instruction {
-                write_symbol: true,
-                move_direction: Direction::Right,
-                next_card: Some(1),
-            },
-            tape_off: Instruction {
-                write_symbol: true,
-                move_direction: Direction::Left,
-                next_card: Some(0),
-            },
-        };
-        Program {
-            name: "Light the world".to_string(),
-            initial_card: 0,
-            cards: vec![left, right],
-        }
-    }
-}
-
 #[derive(Clone)]
 pub struct Card {
     pub name: String,
@@ -85,7 +13,7 @@ pub struct Card {
 }
 
 impl Card {
-    fn terminate() -> Card {
+    pub fn terminate() -> Card {
         Card {
             name: "Terminate".to_string(),
             tape_on: Instruction {
@@ -101,7 +29,7 @@ impl Card {
         }
     }
 
-    fn light_right() -> Card {
+    pub fn light_right() -> Card {
         Card {
             name: "Light right".to_string(),
             tape_on: Instruction {
@@ -117,7 +45,7 @@ impl Card {
         }
     }
 
-    fn light_left() -> Card {
+    pub fn light_left() -> Card {
         Card {
             name: "Light left".to_string(),
             tape_on: Instruction {
@@ -133,7 +61,7 @@ impl Card {
         }
     }
 
-    fn go_right() -> Card {
+    pub fn go_right() -> Card {
         Card {
             name: "Go right".to_string(),
             tape_on: Instruction {

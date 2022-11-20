@@ -1,7 +1,7 @@
 use crate::level::Level;
 use crate::level_dto::LevelDto;
 
-fn sandbox() -> Level {
+pub(crate) fn sandbox() -> Level {
     serde_yaml::from_str::<LevelDto>(include_str!("../res/level/sandbox.yaml"))
         .unwrap()
         .into()

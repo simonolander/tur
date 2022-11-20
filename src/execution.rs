@@ -1,9 +1,8 @@
-use std::borrow::BorrowMut;
 use std::collections::HashSet;
 
 use Direction::{Left, Right};
 
-use crate::level::{Level, TestCase};
+use crate::level::Level;
 use crate::program::{Direction, Program};
 
 pub struct LevelExecution {
@@ -107,8 +106,7 @@ impl TestCaseExecution {
 
 mod test {
     use crate::execution::TestCaseExecution;
-    use crate::level::sandbox;
-    use crate::levels::night_time;
+    use crate::levels::{night_time, sandbox};
     use crate::program::{Card, Instruction, Program};
     use crate::program::Direction::Right;
 

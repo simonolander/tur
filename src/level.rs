@@ -18,14 +18,3 @@ pub enum Target {
     TapeExact { tape: HashSet<i64> },
     Position { position: i64 },
 }
-
-pub fn sandbox() -> Level {
-    Level {
-        name: "Sandbox".to_string(),
-        description: "".to_string(),
-        cases: vec![TestCase {
-            initial_tape: HashSet::new(),
-            target: None,
-        }],
-    }
-}
