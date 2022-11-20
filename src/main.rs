@@ -1,11 +1,13 @@
 #![feature(file_create_new)]
 
-use std::{fs, io::Result, process, thread};
-use std::fs::{create_dir_all, File};
-use std::io::{Error, ErrorKind, Write};
+use std::{fs, process, thread};
+use std::fs::{create_dir_all, File, read_dir};
+use std::io::Write;
 use std::path::PathBuf;
 use std::time::Duration;
 
+use anyhow::Error;
+use anyhow::Result;
 use clap::{Parser, Subcommand};
 use console::Term;
 use directories::ProjectDirs;
@@ -68,7 +70,7 @@ fn main() {
     match cli.command {
         Command::Level { command } => level(command),
         Command::Program { command } => program(command),
-        Command::Run { program, level } => run(),
+        Command::Run { program, level } => run(&program, &level),
     }.unwrap();
 }
 
@@ -143,7 +145,7 @@ fn level_list() -> Result<()> {
     if !level_dir.exists() {
         term.write_line(&format!(
             "Initiating levels directory at {}",
-            &level_dir.to_str().unwrap()
+            &level_dir.to_string_lossy()
         ))?;
         fs::create_dir_all(&level_dir)?
     }
@@ -170,10 +172,9 @@ fn level_create() -> Result<()> {
     Ok(())
 }
 
-fn run() -> Result<()> {
-    let level = sandbox();
-    // let program = Program::light_the_world();
-    let program = Program::light_right();
+fn run(program_name: &str, level_name: &str) -> Result<()> {
+    let level = find_level(level_name).unwrap();
+    let program = find_program(program_name)?.unwrap();
     let mut engine = TestCaseExecution::new(level.cases[0].initial_tape.clone(), program);
     let term = Term::stdout();
     render(&term, &engine)?;
@@ -185,8 +186,28 @@ fn run() -> Result<()> {
     Ok(())
 }
 
+fn find_level(name: &str) -> Option<Level> {
+    builtins().into_iter().find(|level| level.name == name)
+}
+
+fn find_program(name: &str) -> Result<Option<Program>> {
+    for entry in read_dir(program_dir()?)? {
+        let entry = entry?;
+        let file_name = entry.file_name().to_string_lossy().to_string();
+        if file_name != format!("{}.yaml", name) {
+            continue;
+        }
+        let file_contents = fs::read_to_string(entry.path())?;
+        let dto: ProgramDto = serde_yaml::from_str(&file_contents)?;
+        let program = Program::try_from(dto)?;
+        return Ok(Some(program));
+    }
+
+    Ok(None)
+}
+
 fn project_dirs() -> Result<ProjectDirs> {
-    ProjectDirs::from("org", "simonolander", "Tur").ok_or(Error::new(ErrorKind::NotFound, "Unable to find suitable project directory"))
+    ProjectDirs::from("org", "simonolander", "Tur").ok_or(Error::msg("Unable to find suitable project directory"))
 }
 
 fn level_dir() -> Result<PathBuf> {
