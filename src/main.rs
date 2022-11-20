@@ -116,7 +116,15 @@ fn program_list() -> Result<()> {
         };
         table.add_row(row![program.name, "ok"]);
     }
-    table.printstd();
+    if !table.is_empty() {
+        table.printstd();
+    }
+    else {
+        Term::stdout().write_line("No programs found. You can create programs by running:")?;
+        Term::stdout().write_line("")?;
+        Term::stdout().write_line("    tur program create <program name>")?;
+        Term::stdout().write_line("")?;
+    }
     Ok(())
 }
 
@@ -184,5 +192,9 @@ fn level_dir() -> Result<PathBuf> {
 }
 
 fn program_dir() -> Result<PathBuf> {
-    project_dirs().map(|dirs| dirs.data_dir().join("program"))
+    let buf = project_dirs().map(|dirs| dirs.data_dir().join("program"))?;
+    if !buf.exists() {
+        create_dir_all(&buf)?;
+    }
+    Ok(buf)
 }
