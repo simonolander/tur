@@ -43,10 +43,10 @@ impl LevelExecution {
 }
 
 pub struct TestCaseExecution {
-    positions_on: HashSet<i64>,
+    pub positions_on: HashSet<i64>,
     current_card_index: Option<usize>,
-    current_position: i64,
-    steps: u64,
+    pub current_position: i64,
+    pub steps: u64,
     program: Program,
 }
 

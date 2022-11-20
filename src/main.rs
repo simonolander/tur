@@ -29,6 +29,7 @@ mod program;
 mod render;
 mod program_dto;
 mod programs;
+mod outcome;
 
 #[derive(Parser)]
 struct Cli {
@@ -185,6 +186,7 @@ fn run(program_name: &str, level_name: &str) -> Result<()> {
             render(&term, tex)?;
         }
     }
+
     Ok(())
 }
 
