@@ -1,6 +1,8 @@
+#![feature(file_create_new)]
+
 use std::{fs, io::Result, process, thread};
-use std::fs::create_dir_all;
-use std::io::{Error, ErrorKind};
+use std::fs::{create_dir_all, File};
+use std::io::{Error, ErrorKind, Write};
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -81,6 +83,8 @@ fn program_create(name: &str) -> Result<()> {
         term.write_line(&format!("Program {} already exists", name))?;
         return Ok(());
     }
+    let mut file = File::create_new(&file_path)?;
+    file.write_all(include_bytes!("template/program.yaml"))?;
     process::Command::new("vim")
         .arg(&file_path)
         .spawn()?
