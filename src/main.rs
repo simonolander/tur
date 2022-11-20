@@ -7,6 +7,7 @@ use std::time::Duration;
 use clap::{Parser, Subcommand};
 use console::Term;
 use directories::ProjectDirs;
+use prettytable::{format, row, Table};
 
 use crate::execution::TestCaseExecution;
 use crate::level::{Level, sandbox};
@@ -88,17 +89,30 @@ fn program_create(name: &str) -> Result<()> {
 }
 
 fn program_list() -> Result<()> {
-    let term = Term::stdout();
     let dir = fs::read_dir(program_dir()?)?;
-    term.write_line("Program")?;
-    term.write_line("-------")?;
+    let mut table = Table::new();
+    table.set_titles(row!("Name", "Status"));
     for entry in dir {
-        let file_contents = fs::read_to_string(entry?.path())?;
-        let dto: ProgramDto = serde_yaml::from_str(&file_contents).unwrap();
-        if let Ok(program) = Program::try_from(dto) {
-            term.write_line(&program.name)?;
-        }
+        let entry = entry?;
+        let file_name = entry.file_name().to_string_lossy().trim_end_matches(".yaml").to_string();
+        let file_contents = fs::read_to_string(entry.path())?;
+        let dto: ProgramDto = match serde_yaml::from_str(&file_contents) {
+            Ok(dto) => dto,
+            Err(err) => {
+                table.add_row(row![file_name, err.to_string()]);
+                continue;
+            }
+        };
+        let program: Program = match dto.try_into() {
+            Ok(program) => program,
+            Err(err) => {
+                table.add_row(row![file_name, err.to_string()]);
+                continue;
+            }
+        };
+        table.add_row(row![program.name, "ok"]);
     }
+    table.printstd();
     Ok(())
 }
 

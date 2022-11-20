@@ -29,7 +29,7 @@ impl TryFrom<ProgramDto> for Program {
 
         let duplicate_card_names = retain_duplicates(value.cards.iter().map(|card| card.name.clone()).collect());
         if !duplicate_card_names.is_empty() {
-            let message = duplicate_card_names.iter().map(|s| s.as_ref()).collect::<Vec<_>>().join(", ");
+            let message = duplicate_card_names.into_iter().collect::<Vec<String>>().join(", ");
             return Err(Error::custom(format!("Duplicate card names: {}", message)));
         }
 
@@ -81,7 +81,6 @@ impl InstructionDto {
         } else {
             None
         };
-        // let next_card = self.next_card.map(|name| card_name_map.get(&name).ok_or(Error::custom(format!("Card does not exist: {}", &name)))).collect();
         let instruction = Instruction {
             write_symbol: self.write_symbol,
             move_direction: self.move_direction.into(),
