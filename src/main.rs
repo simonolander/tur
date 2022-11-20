@@ -38,14 +38,17 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// Operations related to levels
     Level {
         #[command(subcommand)]
         command: LevelCommand,
     },
+    /// Various CRUD operations on programs
     Program {
         #[command(subcommand)]
         command: ProgramCommand,
     },
+    /// Attempt to solve a given level with a given program
     Run {
         #[arg(short, long)]
         program: String,
