@@ -104,7 +104,8 @@ impl TestCaseExecution {
     }
 }
 
-mod test {
+#[cfg(test)]
+mod tests {
     use crate::execution::TestCaseExecution;
     use crate::levels::{night_time, sandbox};
     use crate::program::{Card, Instruction, Program};

@@ -57,7 +57,6 @@ enum Command {
 #[derive(Subcommand)]
 enum LevelCommand {
     List,
-    Create,
 }
 
 #[derive(Subcommand)]
@@ -105,7 +104,7 @@ fn program_create(name: &str) -> Result<()> {
 }
 
 fn program_list() -> Result<()> {
-    let dir = fs::read_dir(program_dir()?)?;
+    let dir = read_dir(program_dir()?)?;
     let mut table = Table::new();
     table.set_titles(row!("Name", "Status"));
     for entry in dir {
@@ -145,7 +144,6 @@ fn program_list() -> Result<()> {
 fn level(command: LevelCommand) -> Result<()> {
     match command {
         LevelCommand::List => level_list(),
-        LevelCommand::Create => level_create(),
     }
 }
 
@@ -159,7 +157,7 @@ fn level_list() -> Result<()> {
         ))?;
         create_dir_all(&level_dir)?
     }
-    let dir = fs::read_dir(level_dir)?;
+    let dir = read_dir(level_dir)?;
     term.write_line("Levels")?;
     term.write_line("------")?;
     for level in builtins() {
@@ -171,14 +169,6 @@ fn level_list() -> Result<()> {
         let level: Level = dto.into();
         term.write_line(&level.name)?;
     }
-    Ok(())
-}
-
-fn level_create() -> Result<()> {
-    let term = Term::stdout();
-    let level_dir = level_dir()?;
-    let mut result = process::Command::new("vim").spawn()?;
-    result.wait()?;
     Ok(())
 }
 

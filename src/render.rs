@@ -56,7 +56,8 @@ fn from(pos: i64) -> i64 {
 }
 
 
-mod test {
+#[cfg(test)]
+mod tests {
     use crate::render::{from, WINDOW_OFFSET, WINDOW_SIZE};
 
     #[test]
