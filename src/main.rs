@@ -162,7 +162,7 @@ fn level_list() -> Result<()> {
         let file_contents = fs::read_to_string(entry?.path())?;
         let dto: LevelDto = serde_yaml::from_str(&file_contents)?;
         let level: Level = dto.into();
-        table.add_row(row![level.name, false, "builtin"]);
+        table.add_row(row![level.name, false, "custom"]);
     }
     table.printstd();
     Ok(())
