@@ -1,4 +1,4 @@
-name: The moth
+name: moth
 description: At some position there is a light on. Halt the program on that position.
 cases:
   - initial_tape:

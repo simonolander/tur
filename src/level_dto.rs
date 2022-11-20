@@ -68,7 +68,7 @@ mod tests {
     #[test]
     fn deserialize_sandbox() {
         let expected = LevelDto {
-            name: "Sandbox".to_string(),
+            name: "sandbox".to_string(),
             description: "".to_string(),
             cases: Vec::new(),
             target: None,
@@ -81,7 +81,7 @@ mod tests {
     #[test]
     fn deserialize_night_time() {
         let expected = LevelDto {
-            name: "Night time".to_string(),
+            name: "night_time".to_string(),
             description: "At some point >= 0, there's a light on. Turn it off.".to_string(),
             cases: vec![
                 TestCaseDto {
@@ -107,7 +107,7 @@ mod tests {
     #[test]
     fn deserialize_the_moth() {
         let expected = LevelDto {
-            name: "The moth".to_string(),
+            name: "moth".to_string(),
             description: "At some position there is a light on. Halt the program on that position."
                 .to_string(),
             cases: vec![
@@ -126,7 +126,7 @@ mod tests {
             ],
             target: None,
         };
-        let string = include_str!("../res/level/the_moth.yaml");
+        let string = include_str!("../res/level/moth.yaml");
         let actual: LevelDto = serde_yaml::from_str(string).unwrap();
         assert_eq!(expected, actual)
     }

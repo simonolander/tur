@@ -13,7 +13,7 @@ use console::Term;
 use directories::ProjectDirs;
 use prettytable::{format, row, Table};
 
-use crate::execution::TestCaseExecution;
+use crate::execution::{LevelExecution, TestCaseExecution};
 use crate::level::{Level, sandbox};
 use crate::level_dto::LevelDto;
 use crate::levels::builtins;
@@ -46,7 +46,9 @@ enum Command {
         command: ProgramCommand,
     },
     Run {
+        #[arg(short, long)]
         program: String,
+        #[arg(short, long)]
         level: String,
     },
 }
@@ -67,11 +69,15 @@ enum ProgramCommand {
 
 fn main() {
     let cli = Cli::parse();
-    match cli.command {
+    let result = match cli.command {
         Command::Level { command } => level(command),
         Command::Program { command } => program(command),
         Command::Run { program, level } => run(&program, &level),
-    }.unwrap();
+    };
+
+    if let Err(err) = result {
+        Term::stdout().write_line(&err.to_string()).unwrap();
+    }
 }
 
 fn program(command: ProgramCommand) -> Result<()> {
@@ -147,7 +153,7 @@ fn level_list() -> Result<()> {
             "Initiating levels directory at {}",
             &level_dir.to_string_lossy()
         ))?;
-        fs::create_dir_all(&level_dir)?
+        create_dir_all(&level_dir)?
     }
     let dir = fs::read_dir(level_dir)?;
     term.write_line("Levels")?;
@@ -173,14 +179,16 @@ fn level_create() -> Result<()> {
 }
 
 fn run(program_name: &str, level_name: &str) -> Result<()> {
-    let level = find_level(level_name).unwrap();
-    let program = find_program(program_name)?.unwrap();
-    let mut engine = TestCaseExecution::new(level.cases[0].initial_tape.clone(), program);
+    let level = find_level(level_name)
+        .ok_or_else(|| Error::msg(format!("Level {} not found", level_name)))?;
+    let program = find_program(program_name)?
+        .ok_or_else(|| Error::msg(format!("Program {} not found", program_name)))?;
+    let mut execution = LevelExecution::new(level, program);
     let term = Term::stdout();
-    render(&term, &engine)?;
-    while !engine.is_terminated() {
-        engine.step();
-        render(&term, &engine)?;
+    render(&term, &execution.current_execution().unwrap())?;
+    while !execution.is_terminated() {
+        execution.step();
+        render(&term, &execution.current_execution().unwrap())?;
         thread::sleep(Duration::from_millis(100));
     }
     Ok(())

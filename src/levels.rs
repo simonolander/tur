@@ -14,7 +14,7 @@ pub fn night_time() -> Level {
 }
 
 fn moth() -> Level {
-    serde_yaml::from_str::<LevelDto>(include_str!("../res/level/the_moth.yaml"))
+    serde_yaml::from_str::<LevelDto>(include_str!("../res/level/moth.yaml"))
         .unwrap()
         .into()
 }

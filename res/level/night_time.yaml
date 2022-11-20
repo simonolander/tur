@@ -1,4 +1,4 @@
-name: Night time
+name: night_time
 description: At some point >= 0, there's a light on. Turn it off.
 cases:
   - initial_tape:

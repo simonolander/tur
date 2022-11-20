@@ -13,7 +13,7 @@ pub struct LevelExecution {
 }
 
 impl LevelExecution {
-    fn new(level: Level, program: Program) -> LevelExecution {
+    pub fn new(level: Level, program: Program) -> LevelExecution {
         let executions = level.cases.iter().map(|tc| TestCaseExecution::new(tc.initial_tape.clone(), program.clone())).collect();
         LevelExecution {
             level,
@@ -31,7 +31,7 @@ impl LevelExecution {
         }
     }
 
-    fn current_execution(&mut self) -> Option<&mut TestCaseExecution> {
+    pub fn current_execution(&mut self) -> Option<&mut TestCaseExecution> {
         self.executions.iter_mut().find(|e| !e.is_terminated())
     }
 
