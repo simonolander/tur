@@ -84,7 +84,7 @@ fn program_create(name: &str) -> Result<()> {
         return Ok(());
     }
     let mut file = File::create_new(&file_path)?;
-    file.write_all(include_bytes!("template/program.yaml"))?;
+    file.write_all(include_str!("template/program.yaml").replace("PROGRAM_NAME", name).as_bytes())?;
     process::Command::new("vim")
         .arg(&file_path)
         .spawn()?

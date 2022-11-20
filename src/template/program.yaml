@@ -1,4 +1,4 @@
-name: My program
+name: PROGRAM_NAME
 description: Move back and forth, toggling the lights
 initial_card: A
 cards:
