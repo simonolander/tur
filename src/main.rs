@@ -163,7 +163,7 @@ fn level_list() -> Result<()> {
     }
     for entry in dir {
         let file_contents = fs::read_to_string(entry?.path())?;
-        let dto: LevelDto = serde_yaml::from_str(&file_contents).unwrap();
+        let dto: LevelDto = serde_yaml::from_str(&file_contents)?;
         let level: Level = dto.into();
         term.write_line(&level.name)?;
     }
@@ -187,9 +187,11 @@ fn run(program_name: &str, level_name: &str) -> Result<()> {
     let term = Term::stdout();
     render(&term, &execution.current_execution().unwrap())?;
     while !execution.is_terminated() {
+        thread::sleep(Duration::from_millis(1000));
         execution.step();
-        render(&term, &execution.current_execution().unwrap())?;
-        thread::sleep(Duration::from_millis(100));
+        if let Some(tex) = execution.current_execution() {
+            render(&term, tex)?;
+        }
     }
     Ok(())
 }

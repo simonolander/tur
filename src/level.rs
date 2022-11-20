@@ -7,7 +7,7 @@ pub struct Level {
     pub cases: Vec<TestCase>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct TestCase {
     pub initial_tape: HashSet<i64>,
     pub target: Option<Target>,

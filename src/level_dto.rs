@@ -17,17 +17,21 @@ pub struct LevelDto {
 
 impl Into<Level> for LevelDto {
     fn into(self) -> Level {
-        Level {
-            name: self.name,
-            description: self.description,
-            cases: self
-                .cases
+        let cases = if self.cases.is_empty() {
+            vec![TestCase::default()]
+        } else {
+            self.cases
                 .iter()
                 .map(|tc| TestCase {
                     initial_tape: tc.initial_tape.iter().copied().collect(),
                     target: self.target.as_ref().map(|t| t.into()),
                 })
-                .collect(),
+                .collect()
+        };
+        Level {
+            name: self.name,
+            description: self.description,
+            cases,
         }
     }
 }
