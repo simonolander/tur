@@ -39,9 +39,6 @@ impl From<TestCaseExecution> for TestCaseResult {
 
 impl Display for TestCaseResult {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let asdf = "asdf".to_string();
-        dbg!(asdf);
-        asdf.ends_with("");
         write!(f, "")
     }
 }

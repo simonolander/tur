@@ -180,7 +180,7 @@ fn run(program_name: &str, level_name: &str) -> Result<()> {
     term.write_line(&format!("Program: {}", execution.program.name))?;
     render(&term, &execution.current_execution().unwrap())?;
     while !execution.is_terminated() {
-        thread::sleep(Duration::from_millis(1000));
+        thread::sleep(Duration::from_millis(500));
         execution.step();
         if let Some(tex) = execution.current_execution() {
             render(&term, tex)?;
