@@ -22,9 +22,9 @@ impl Into<Level> for LevelDto {
         } else {
             self.cases
                 .iter()
-                .map(|tc| TestCase {
+                .map(|tc: &TestCaseDto| TestCase {
                     initial_tape: tc.initial_tape.iter().copied().collect(),
-                    target: self.target.as_ref().map(|t| t.into()),
+                    target: tc.target.clone().or(self.target.clone()).map(|target| Target::from(&target)),
                 })
                 .collect()
         };
@@ -44,7 +44,7 @@ struct TestCaseDto {
     target: Option<TargetDto>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[serde(tag = "type")]
 enum TargetDto {
     TapeExact { tape: Vec<i64> },
