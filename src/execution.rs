@@ -1,7 +1,9 @@
 use std::collections::HashSet;
+use std::fmt::{Display, Formatter, write};
 
 use Direction::{Left, Right};
 
+use crate::execution::TestCaseExecutionState::{Pending, Running, Success};
 use crate::level::Level;
 use crate::program::{Direction, Program};
 
@@ -25,13 +27,17 @@ impl LevelExecution {
         if self.is_terminated() {
             return;
         }
-        if let Some(ex) = self.current_execution() {
+        if let Some(ex) = self.current_execution_mut() {
             ex.step()
         }
     }
 
-    pub fn current_execution(&mut self) -> Option<&mut TestCaseExecution> {
+    pub fn current_execution_mut(&mut self) -> Option<&mut TestCaseExecution> {
         self.executions.iter_mut().find(|e| !e.is_terminated())
+    }
+
+    pub fn current_execution(&self) -> Option<&TestCaseExecution> {
+        self.executions.iter().find(|e| !e.is_terminated())
     }
 
     pub fn is_terminated(&self) -> bool {
@@ -101,6 +107,31 @@ impl TestCaseExecution {
 
     pub fn get_tape_at(&self, position: i64) -> bool {
         self.positions_on.contains(&position)
+    }
+
+    pub fn get_state(&self) -> TestCaseExecutionState {
+        if self.steps == 0 {
+            Pending
+        } else if !self.is_terminated() {
+            Running
+        } else {
+            Success
+        }
+        // TODO Failure
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum TestCaseExecutionState {
+    Pending,
+    Running,
+    Success,
+    Failure,
+}
+
+impl Display for TestCaseExecutionState {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
     }
 }
 

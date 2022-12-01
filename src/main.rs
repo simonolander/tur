@@ -19,7 +19,7 @@ use crate::level_dto::LevelDto;
 use crate::levels::builtins;
 use crate::program::Program;
 use crate::program_dto::ProgramDto;
-use crate::render::render;
+use crate::render::{render, render_tce};
 
 mod execution;
 mod level;
@@ -190,15 +190,15 @@ fn run(program_name: &str, level_name: &str) -> Result<()> {
         .ok_or_else(|| Error::msg(format!("Program {} not found", program_name)))?;
     let mut execution = LevelExecution::new(level, program);
     let term = Term::stdout();
-    term.write_line(&format!("Level: {}", execution.level.name))?;
-    term.write_line(&format!("Program: {}", execution.program.name))?;
-    render(&term, &execution.current_execution().unwrap())?;
+    render(&term, &execution)?;
+    // render_tce(&term, &execution.current_execution().unwrap())?;
     while !execution.is_terminated() {
         thread::sleep(Duration::from_millis(500));
         execution.step();
-        if let Some(tex) = execution.current_execution() {
-            render(&term, tex)?;
-        }
+        // if let Some(tex) = execution.current_execution() {
+        //     render_tce(&term, tex)?;
+        // }
+        render(&term, &execution)?;
     }
 
     Ok(())
