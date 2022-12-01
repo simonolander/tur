@@ -34,7 +34,6 @@ pub fn render_tce(term: &Term, tce: &TestCaseExecution) -> Result<()> {
     let to = from + WINDOW_SIZE + 1;
 
     // Render position
-    // term.clear_line()?;
     let position_line = " ".repeat((pos - from) as usize) + "v";
     term.write_line(&position_line)?;
 
@@ -54,17 +53,12 @@ pub fn render_tce(term: &Term, tce: &TestCaseExecution) -> Result<()> {
     for _ in 0..=WINDOW_SIZE / 16 {
         tick_line += &format!("{:<16}", '|');
     }
-    // term.clear_line()?;
     term.write_line(&tick_line)?;
     let mut number_line = String::new();
     for n in 0..=WINDOW_SIZE / 16 {
         number_line += &format!("{:<16}", from + n * 16);
     }
-    // term.clear_line()?;
     term.write_line(&number_line)?;
-
-    // Reset
-    // term.move_cursor_up(4)?;
     Ok(())
 }
 
