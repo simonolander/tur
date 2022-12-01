@@ -1,18 +1,23 @@
 name: moth
 description: At some position there is a light on. Halt the program on that position.
 cases:
-  - initial_tape:
-      - 18
+  - initial_tape: [ 18 ]
     target:
       type: Position
       position: 18
-  - initial_tape:
-      - -13
+  - initial_tape: [ -13 ]
     target:
       type: Position
       position: -13
-  - initial_tape:
-      - 0
+  - initial_tape: [ 0 ]
     target:
       type: Position
       position: 0
+  - initial_tape: [ 1 ]
+    target:
+      type: Position
+      position: 1
+  - initial_tape: [ -1 ]
+    target:
+      type: Position
+      position: -1
