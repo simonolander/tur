@@ -6,6 +6,7 @@ cards:
     instruction_on:
       write_symbol: false
       move_direction: Right
+      next_card: B
     instruction_off:
       write_symbol: true
       move_direction: Right
@@ -18,4 +19,4 @@ cards:
     instruction_off:
       write_symbol: true
       move_direction: Left
-      next_card: A
+      next_card: null
