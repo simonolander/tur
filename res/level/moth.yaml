@@ -21,3 +21,19 @@ cases:
     target:
       type: Position
       position: -1
+  - initial_tape: [ 2 ]
+    target:
+      type: Position
+      position: 2
+  - initial_tape: [ -2 ]
+    target:
+      type: Position
+      position: -2
+  - initial_tape: [ 3 ]
+    target:
+      type: Position
+      position: 3
+  - initial_tape: [ -3 ]
+    target:
+      type: Position
+      position: -3
