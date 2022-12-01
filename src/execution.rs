@@ -79,10 +79,12 @@ impl TestCaseExecution {
             let current_position = &self.current_position;
             let on = self.positions_on.contains(current_position);
             let instruction = if on { &card.tape_on } else { &card.tape_off };
-            if instruction.write_symbol {
-                self.positions_on.insert(*current_position);
-            } else {
-                self.positions_on.remove(current_position);
+            if let Some(symbol) = instruction.write_symbol {
+                if symbol {
+                    self.positions_on.insert(*current_position);
+                } else {
+                    self.positions_on.remove(current_position);
+                }
             }
             if let Some(move_direction) = instruction.move_direction {
                 match move_direction {
@@ -170,8 +172,8 @@ mod tests {
     fn test_just_stop() {
         let level = sandbox();
         let terminate = Instruction {
-            write_symbol: false,
-            move_direction: Right,
+            write_symbol: Some(false),
+            move_direction: Some(Right),
             next_card: None,
         };
         let card = Card {
@@ -199,18 +201,18 @@ mod tests {
             cards: vec![Card {
                 name: "".to_string(),
                 tape_on: Instruction {
-                    write_symbol: false,
-                    move_direction: Right,
+                    write_symbol: Some(false),
+                    move_direction: Some(Right),
                     next_card: None,
                 },
                 tape_off: Instruction {
-                    write_symbol: false,
-                    move_direction: Right,
+                    write_symbol: Some(false),
+                    move_direction: Some(Right),
                     next_card: Some(0),
                 },
             }],
         };
-        let mut engine = TestCaseExecution::new(level.cases[0].initial_tape.clone(), program);
+        let mut engine = TestCaseExecution::new(level.cases[0].clone(), program);
         let terminated = engine.run(100);
         assert!(terminated);
     }

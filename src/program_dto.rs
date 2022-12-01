@@ -68,7 +68,7 @@ impl CardDto {
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub struct InstructionDto {
-    pub write_symbol: bool,
+    pub write_symbol: Option<bool>,
     pub move_direction: Option<DirectionDto>,
     pub next_card: Option<String>,
 }

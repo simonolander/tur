@@ -50,12 +50,12 @@ fn light_the_world() -> Program {
     let left = Card {
         name: "LEFT".to_string(),
         tape_on: Instruction {
-            write_symbol: true,
+            write_symbol: None,
             move_direction: Some(Direction::Left),
             next_card: Some(0),
         },
         tape_off: Instruction {
-            write_symbol: true,
+            write_symbol: Some(true),
             move_direction: Some(Direction::Right),
             next_card: Some(1),
         },
@@ -63,12 +63,12 @@ fn light_the_world() -> Program {
     let right = Card {
         name: "RIGHT".to_string(),
         tape_on: Instruction {
-            write_symbol: true,
+            write_symbol: None,
             move_direction: Some(Direction::Right),
             next_card: Some(1),
         },
         tape_off: Instruction {
-            write_symbol: true,
+            write_symbol: Some(true),
             move_direction: Some(Direction::Left),
             next_card: Some(0),
         },
