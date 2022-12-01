@@ -84,9 +84,11 @@ impl TestCaseExecution {
             } else {
                 self.positions_on.remove(current_position);
             }
-            match instruction.move_direction {
-                Left => self.current_position -= 1,
-                Right => self.current_position += 1,
+            if let Some(move_direction) = instruction.move_direction {
+                match move_direction {
+                    Left => self.current_position -= 1,
+                    Right => self.current_position += 1,
+                }
             }
             self.current_card_index = instruction.next_card;
             self.steps += 1;

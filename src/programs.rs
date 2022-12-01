@@ -51,12 +51,12 @@ fn light_the_world() -> Program {
         name: "LEFT".to_string(),
         tape_on: Instruction {
             write_symbol: true,
-            move_direction: Direction::Left,
+            move_direction: Some(Direction::Left),
             next_card: Some(0),
         },
         tape_off: Instruction {
             write_symbol: true,
-            move_direction: Direction::Right,
+            move_direction: Some(Direction::Right),
             next_card: Some(1),
         },
     };
@@ -64,12 +64,12 @@ fn light_the_world() -> Program {
         name: "RIGHT".to_string(),
         tape_on: Instruction {
             write_symbol: true,
-            move_direction: Direction::Right,
+            move_direction: Some(Direction::Right),
             next_card: Some(1),
         },
         tape_off: Instruction {
             write_symbol: true,
-            move_direction: Direction::Left,
+            move_direction: Some(Direction::Left),
             next_card: Some(0),
         },
     };

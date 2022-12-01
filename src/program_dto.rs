@@ -69,7 +69,7 @@ impl CardDto {
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub struct InstructionDto {
     pub write_symbol: bool,
-    pub move_direction: DirectionDto,
+    pub move_direction: Option<DirectionDto>,
     pub next_card: Option<String>,
 }
 
@@ -82,7 +82,7 @@ impl InstructionDto {
         };
         let instruction = Instruction {
             write_symbol: self.write_symbol,
-            move_direction: self.move_direction.into(),
+            move_direction: self.move_direction.map(|dir| dir.into()),
             next_card,
         };
         Ok(instruction)
