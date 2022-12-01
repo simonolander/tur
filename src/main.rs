@@ -44,12 +44,12 @@ enum Command {
         #[command(subcommand)]
         command: LevelCommand,
     },
-    /// Various CRUD operations on programs
+    /// Program CRUD
     Program {
         #[command(subcommand)]
         command: ProgramCommand,
     },
-    /// Attempt to solve a given level with a given program
+    /// Run a program on a level
     Run {
         #[arg(short, long)]
         program: String,
