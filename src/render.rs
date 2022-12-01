@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use anyhow::Result;
 use console::Term;
 
@@ -23,6 +24,9 @@ pub fn render(term: &Term, le: &LevelExecution) -> Result<()> {
     }
     if let Some(tce) = le.current_execution() {
         render_tce(term, tce)?;
+    }
+    if le.is_terminated() {
+        term.write_line(&format!("Total steps: {}", le.get_steps()))?;
     }
 
     Ok(())

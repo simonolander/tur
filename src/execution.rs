@@ -46,6 +46,10 @@ impl LevelExecution {
             .map(TestCaseExecution::is_terminated)
             .unwrap_or(true)
     }
+
+    pub fn get_steps(&self) -> u64 {
+        self.executions.iter().map(|tce| tce.steps).sum()
+    }
 }
 
 pub struct TestCaseExecution {
