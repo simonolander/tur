@@ -36,9 +36,3 @@ impl From<TestCaseExecution> for TestCaseResult {
         }
     }
 }
-
-impl Display for TestCaseResult {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "")
-    }
-}
