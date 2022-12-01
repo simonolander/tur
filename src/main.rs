@@ -65,10 +65,9 @@ enum LevelCommand {
 
 #[derive(Subcommand)]
 enum ProgramCommand {
-    Create {
-        name: String
-    },
+    Create { name: String },
     List,
+    Edit { name: String },
 }
 
 fn main() {
@@ -87,6 +86,7 @@ fn main() {
 fn program(command: ProgramCommand) -> Result<()> {
     match command {
         ProgramCommand::Create { name } => program_create(&name),
+        ProgramCommand::Edit { name } => program_edit(&name),
         ProgramCommand::List => program_list(),
     }
 }
@@ -100,6 +100,20 @@ fn program_create(name: &str) -> Result<()> {
     }
     let mut file = File::create_new(&file_path)?;
     file.write_all(include_str!("template/program.yaml").replace("PROGRAM_NAME", name).as_bytes())?;
+    process::Command::new("vim")
+        .arg(&file_path)
+        .spawn()?
+        .wait()?;
+    Ok(())
+}
+
+fn program_edit(name: &str) -> Result<()> {
+    let term = Term::stdout();
+    let file_path = program_dir()?.join(format!("{}.yaml", name));
+    if !file_path.exists() {
+        term.write_line(&format!("Program {} does not exist", name))?;
+        return Ok(());
+    }
     process::Command::new("vim")
         .arg(&file_path)
         .spawn()?
