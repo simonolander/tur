@@ -95,7 +95,7 @@ fn program(command: ProgramCommand) -> Result<()> {
 
 fn program_create(name: &str) -> Result<()> {
     let term = Term::stdout();
-    let file_path = program_dir()?.join(format!("{}.yaml", name));
+    let file_path = program_file(name)?;
     if file_path.exists() {
         term.write_line(&format!("Program {} already exists", name))?;
         return Ok(());
@@ -111,7 +111,7 @@ fn program_create(name: &str) -> Result<()> {
 
 fn program_edit(name: &str) -> Result<()> {
     let term = Term::stdout();
-    let file_path = program_dir()?.join(format!("{}.yaml", name));
+    let file_path = program_file(name)?;
     if !file_path.exists() {
         term.write_line(&format!("Program {} does not exist", name))?;
         return Ok(());
@@ -125,7 +125,7 @@ fn program_edit(name: &str) -> Result<()> {
 
 fn program_delete(name: &str) -> Result<()> {
     let term = Term::stdout();
-    let file_path = program_dir()?.join(format!("{}.yaml", name));
+    let file_path = program_file(name)?;
     if !file_path.exists() {
         term.write_line(&format!("Program {} does not exist", name))?;
         return Ok(());
@@ -256,4 +256,16 @@ fn program_dir() -> Result<PathBuf> {
         create_dir_all(&buf)?;
     }
     Ok(buf)
+}
+
+fn program_file(name: &str) -> Result<PathBuf> {
+    let dir = program_dir()?;
+    let path = dir.join(format!("{}.yaml", name));
+    let parent = path.parent()
+        .ok_or(Error::msg(format!("Could not get parent of path {}", path.to_string_lossy())))?;
+    if parent == dir.as_path() {
+        Ok(path)
+    } else {
+        Err(Error::msg(format!("Mismatched parents: expected {} but was {}", dir.to_string_lossy(), parent.to_string_lossy())))
+    }
 }
