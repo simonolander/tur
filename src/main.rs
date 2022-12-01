@@ -1,6 +1,7 @@
 #![feature(file_create_new)]
 
 use std::{fs, process, thread};
+use std::cmp::max;
 use std::fs::{create_dir_all, File, read_dir};
 use std::io::Write;
 use std::path::PathBuf;
@@ -55,6 +56,10 @@ enum Command {
         program: String,
         #[arg(short, long)]
         level: String,
+
+        /// Amount of milliseconds to sleep between each step
+        #[arg(short, long, default_value_t = 500)]
+        sleep: u64,
     },
 }
 
@@ -76,7 +81,7 @@ fn main() {
     let result = match cli.command {
         Command::Level { command } => level(command),
         Command::Program { command } => program(command),
-        Command::Run { program, level } => run(&program, &level),
+        Command::Run { program, level, sleep } => run(&program, &level, sleep),
     };
 
     if let Err(err) = result {
@@ -197,7 +202,8 @@ fn level_list() -> Result<()> {
     Ok(())
 }
 
-fn run(program_name: &str, level_name: &str) -> Result<()> {
+fn run(program_name: &str, level_name: &str, sleep: u64) -> Result<()> {
+    let sleep_duration = Duration::from_millis(max(sleep, 10));
     let level = find_level(level_name)
         .ok_or_else(|| Error::msg(format!("Level {} not found", level_name)))?;
     let program = find_program(program_name)?
@@ -206,7 +212,7 @@ fn run(program_name: &str, level_name: &str) -> Result<()> {
     let term = Term::stdout();
     render(&term, &execution)?;
     while !execution.is_terminated() {
-        thread::sleep(Duration::from_millis(500));
+        thread::sleep(sleep_duration);
         execution.step();
         render(&term, &execution)?;
     }
