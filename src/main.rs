@@ -191,13 +191,9 @@ fn run(program_name: &str, level_name: &str) -> Result<()> {
     let mut execution = LevelExecution::new(level, program);
     let term = Term::stdout();
     render(&term, &execution)?;
-    // render_tce(&term, &execution.current_execution().unwrap())?;
     while !execution.is_terminated() {
         thread::sleep(Duration::from_millis(500));
         execution.step();
-        // if let Some(tex) = execution.current_execution() {
-        //     render_tce(&term, tex)?;
-        // }
         render(&term, &execution)?;
     }
 
