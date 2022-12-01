@@ -68,6 +68,7 @@ enum ProgramCommand {
     Create { name: String },
     List,
     Edit { name: String },
+    Delete { name: String },
 }
 
 fn main() {
@@ -87,6 +88,7 @@ fn program(command: ProgramCommand) -> Result<()> {
     match command {
         ProgramCommand::Create { name } => program_create(&name),
         ProgramCommand::Edit { name } => program_edit(&name),
+        ProgramCommand::Delete { name } => program_delete(&name),
         ProgramCommand::List => program_list(),
     }
 }
@@ -118,6 +120,18 @@ fn program_edit(name: &str) -> Result<()> {
         .arg(&file_path)
         .spawn()?
         .wait()?;
+    Ok(())
+}
+
+fn program_delete(name: &str) -> Result<()> {
+    let term = Term::stdout();
+    let file_path = program_dir()?.join(format!("{}.yaml", name));
+    if !file_path.exists() {
+        term.write_line(&format!("Program {} does not exist", name))?;
+        return Ok(());
+    }
+    fs::remove_file(file_path)?;
+    term.write_line(&format!("Program {} deleted", name))?;
     Ok(())
 }
 
