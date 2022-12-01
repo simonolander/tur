@@ -3,8 +3,8 @@ use std::fmt::{Display, Formatter, write};
 
 use Direction::{Left, Right};
 
-use crate::execution::TestCaseExecutionState::{Pending, Running, Success};
-use crate::level::Level;
+use crate::execution::TestCaseExecutionState::{Failure, Pending, Running, Success};
+use crate::level::{Level, Target, TestCase};
 use crate::program::{Direction, Program};
 
 pub struct LevelExecution {
@@ -15,7 +15,7 @@ pub struct LevelExecution {
 
 impl LevelExecution {
     pub fn new(level: Level, program: Program) -> LevelExecution {
-        let executions = level.cases.iter().map(|tc| TestCaseExecution::new(tc.initial_tape.clone(), program.clone())).collect();
+        let executions = level.cases.iter().map(|tc| TestCaseExecution::new(tc.clone(), program.clone())).collect();
         LevelExecution {
             level,
             program,
@@ -58,16 +58,18 @@ pub struct TestCaseExecution {
     pub current_position: i64,
     pub steps: u64,
     program: Program,
+    target: Option<Target>,
 }
 
 impl TestCaseExecution {
-    pub fn new(positions_on: HashSet<i64>, program: Program) -> TestCaseExecution {
+    pub fn new(tc: TestCase, program: Program) -> TestCaseExecution {
         TestCaseExecution {
-            positions_on,
+            positions_on: tc.initial_tape,
             current_card_index: Some(0),
             current_position: 0,
             steps: 0,
             program,
+            target: tc.target,
         }
     }
 
@@ -119,24 +121,40 @@ impl TestCaseExecution {
         } else if !self.is_terminated() {
             Running
         } else {
-            Success
+            let errors = self.get_errors();
+            if errors.is_empty() {
+                Success
+            } else {
+                Failure { errors }
+            }
         }
-        // TODO Failure
+    }
+
+    fn get_errors(&self) -> Vec<String> {
+        match &self.target {
+            None => vec![],
+            Some(target) => match target {
+                Target::TapeExact { tape } => if &self.positions_on != tape {
+                    vec![format!("Wrong final tape")]
+                } else {
+                    vec![]
+                }
+                Target::Position { position } => if &self.current_position != position {
+                    vec![format!("Wrong final position: wanted {} but was {}", position, self.current_position)]
+                } else {
+                    vec![]
+                }
+            }
+        }
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub enum TestCaseExecutionState {
     Pending,
     Running,
     Success,
-    Failure,
-}
-
-impl Display for TestCaseExecutionState {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
+    Failure { errors: Vec<String> },
 }
 
 #[cfg(test)]

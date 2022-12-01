@@ -1,4 +1,5 @@
 use std::fmt::Debug;
+
 use anyhow::Result;
 use console::Term;
 
@@ -13,13 +14,24 @@ pub fn render(term: &Term, le: &LevelExecution) -> Result<()> {
     term.write_line(&format!("Program: {}", le.program.name))?;
     term.write_line("Test cases:")?;
     for (index, tce) in le.executions.iter().enumerate() {
-        let state = tce.get_state();
-        term.write_line(&format!("{:>4}: {}", index, state))?;
-        match state {
-            TestCaseExecutionState::Pending => {}
-            TestCaseExecutionState::Running => { term.write_line(&format!("      Steps: {}", tce.steps))?; }
-            TestCaseExecutionState::Success => { term.write_line(&format!("      Steps: {}", tce.steps))?; }
-            TestCaseExecutionState::Failure => {}
+        match tce.get_state() {
+            TestCaseExecutionState::Pending => {
+                term.write_line(&format!("{:>4}: Pending", index))?;
+            }
+            TestCaseExecutionState::Running => {
+                term.write_line(&format!("{:>4}: Running", index))?;
+                term.write_line(&format!("      Steps: {}", tce.steps))?;
+            }
+            TestCaseExecutionState::Success => {
+                term.write_line(&format!("{:>4}: Success", index))?;
+                term.write_line(&format!("      Steps: {}", tce.steps))?;
+            }
+            TestCaseExecutionState::Failure { errors } => {
+                term.write_line(&format!("{:>4}: Failure", index))?;
+                for error in errors {
+                    term.write_line(&format!("       - {}", error))?;
+                }
+            }
         }
     }
     if let Some(tce) = le.current_execution() {
