@@ -40,6 +40,11 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// List and show things
+    Get {
+        #[command(subcommand)]
+        resource: GetResource,
+    },
     /// Operations related to levels
     Level {
         #[command(subcommand)]
@@ -68,6 +73,15 @@ enum Command {
 }
 
 #[derive(Subcommand)]
+enum GetResource {
+    /// Get all or specific program
+    Program {
+        /// If specified, gets program with matching name
+        name: Option<String>,
+    },
+}
+
+#[derive(Subcommand)]
 enum LevelCommand {
     List,
 }
@@ -86,11 +100,31 @@ fn main() {
         Command::Level { command } => level(command),
         Command::Program { command } => program(command),
         Command::Run { program, level, sleep, test_case } => run(&program, &level, sleep, test_case),
+        Command::Get { resource } => get_resource(&resource)
     };
 
     if let Err(err) = result {
         Term::stdout().write_line(&err.to_string()).unwrap();
     }
+}
+
+fn get_resource(resource: &GetResource) -> Result<()> {
+    match resource {
+        GetResource::Program { name } =>
+            match name {
+                None => program_list(),
+                Some(name) => get_program(name),
+            },
+    }
+}
+
+fn get_program(name: &str) -> Result<()> {
+    let program = find_program(name)?
+        .ok_or(Error::msg(format!("Program {} not found", name)))?;
+    let dto = ProgramDto::from(program);
+    let serialized = serde_yaml::to_string(&dto)?;
+    Term::stdout().write_line(&serialized)?;
+    Ok(())
 }
 
 fn program(command: ProgramCommand) -> Result<()> {

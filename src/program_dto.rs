@@ -16,32 +16,49 @@ pub struct ProgramDto {
     cards: Vec<CardDto>,
 }
 
+impl From<Program> for ProgramDto {
+    fn from(program: Program) -> Self {
+        let card_names: Vec<String> = program.cards.iter().map(|card| card.name.clone()).collect();
+        let initial_card = card_names[program.initial_card].clone();
+        let cards: Vec<CardDto> = program.cards.into_iter().map(CardDto::from_card(&card_names)).collect();
+        ProgramDto {
+            name: program.name,
+            description: program.description,
+            initial_card,
+            cards,
+        }
+    }
+}
+
 impl TryFrom<ProgramDto> for Program {
     type Error = serde_yaml::Error;
 
-    fn try_from(value: ProgramDto) -> Result<Self, Self::Error> {
-        let name = if value.name.is_empty() {
+    fn try_from(dto: ProgramDto) -> Result<Self, Self::Error> {
+        let name = if dto.name.is_empty() {
             return Err(Error::custom("Name cannot be empty"));
         } else {
-            value.name
+            dto.name
         };
 
-        let duplicate_card_names = retain_duplicates(value.cards.iter().map(|card| card.name.clone()).collect());
+        let description = dto.description;
+
+        let duplicate_card_names = retain_duplicates(dto.cards.iter().map(|card| card.name.clone()).collect());
         if !duplicate_card_names.is_empty() {
             let message = duplicate_card_names.into_iter().collect::<Vec<String>>().join(", ");
             return Err(Error::custom(format!("Duplicate card names: {}", message)));
         }
 
-        let card_name_map: HashMap<String, usize> = value.cards.iter()
+        let card_name_map: HashMap<String, usize> = dto.cards.iter()
             .enumerate().map(|(index, card)| (card.name.clone(), index))
             .collect();
 
-        let &initial_card = card_name_map.get(&value.initial_card).ok_or::<Self::Error>(Error::custom(format!("Initial card not found: {}", value.initial_card)))?;
+        let &initial_card = card_name_map.get(&dto.initial_card).ok_or::<Self::Error>(Error::custom(format!("Initial card not found: {}", dto.initial_card)))?;
 
-        let cards = value.cards.iter().map(|card| card.try_into(&card_name_map)).collect::<Result<_, _>>()?;
+        let cards = dto.cards.iter().map(|card| card.try_into(&card_name_map)).collect::<Result<_, _>>()?;
 
         Ok(Program {
             name,
+            description,
             initial_card,
             cards,
         })
@@ -63,6 +80,24 @@ impl CardDto {
             tape_off: self.instruction_off.try_into_with_map(card_name_map)?,
         };
         Ok(card)
+    }
+
+    fn from_card<'a>(card_names: &'a[String]) -> impl Fn(Card) -> CardDto + 'a {
+        |card| {
+            CardDto {
+                name: card.name,
+                instruction_on: InstructionDto {
+                    write_symbol: card.tape_on.write_symbol,
+                    move_direction: card.tape_on.move_direction.map(DirectionDto::from),
+                    next_card: card.tape_on.next_card.map(|index| card_names[index].clone()),
+                },
+                instruction_off: InstructionDto {
+                    write_symbol: card.tape_off.write_symbol,
+                    move_direction: card.tape_off.move_direction.map(DirectionDto::from),
+                    next_card: card.tape_off.next_card.map(|index| card_names[index].clone()),
+                },
+            }
+        }
     }
 }
 
@@ -100,6 +135,15 @@ impl From<DirectionDto> for Direction {
         match direction {
             DirectionDto::Left => Left,
             DirectionDto::Right => Right,
+        }
+    }
+}
+
+impl From<Direction> for DirectionDto {
+    fn from(direction: Direction) -> Self {
+        match direction {
+            Left => DirectionDto::Left,
+            Right => DirectionDto::Right,
         }
     }
 }

@@ -14,6 +14,7 @@ fn just_stop() -> Program {
     let card = Card::terminate();
     Program {
         name: "just_stop".to_string(),
+        description: "Do nothing, just terminate".to_string(),
         initial_card: 0,
         cards: vec![card],
     }
@@ -23,6 +24,7 @@ fn light_right() -> Program {
     let card = Card::light_right();
     Program {
         name: "light_right".to_string(),
+        description: "Move to the right forever, lighting everything".to_string(),
         initial_card: 0,
         cards: vec![card],
     }
@@ -32,6 +34,7 @@ fn light_left() -> Program {
     let card = Card::light_left();
     Program {
         name: "light_left".to_string(),
+        description: "Move to the left forever, lighting everything".to_string(),
         initial_card: 0,
         cards: vec![card],
     }
@@ -41,6 +44,7 @@ fn go_right() -> Program {
     let card = Card::go_right();
     Program {
         name: "go_right".to_string(),
+        description: "Go to the right forever".to_string(),
         initial_card: 0,
         cards: vec![card],
     }
@@ -75,6 +79,7 @@ fn light_the_world() -> Program {
     };
     Program {
         name: "light_the_world".to_string(),
+        description: "Light everything".to_string(),
         initial_card: 0,
         cards: vec![left, right],
     }

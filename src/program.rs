@@ -1,6 +1,7 @@
 #[derive(Clone)]
 pub struct Program {
     pub name: String,
+    pub description: String,
     pub initial_card: usize,
     pub cards: Vec<Card>,
 }
