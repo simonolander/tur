@@ -1,5 +1,7 @@
 use std::collections::HashSet;
 
+use crate::level::Target::{Position, TapeExact};
+
 #[derive(Clone)]
 pub struct Level {
     pub name: String,
@@ -17,4 +19,14 @@ pub struct TestCase {
 pub enum Target {
     TapeExact { tape: HashSet<i64> },
     Position { position: i64 },
+}
+
+impl Target {
+    pub fn position(position: i64) -> Target {
+        Position { position }
+    }
+
+    pub fn tape(tape: &[i64]) -> Target {
+        TapeExact { tape: tape.iter().copied().collect() }
+    }
 }
