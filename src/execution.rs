@@ -5,7 +5,7 @@ use Direction::{Left, Right};
 
 use crate::execution::TestCaseExecutionState::{Failure, Pending, Running, Success};
 use crate::level::{Level, Target, TestCase};
-use crate::program::{Direction, Program};
+use crate::program::{Card, Direction, Program};
 
 pub struct LevelExecution {
     pub level: Level,
@@ -151,6 +151,10 @@ impl TestCaseExecution {
             }
         }
     }
+
+    pub fn get_current_card(&self) -> Option<&Card> {
+        self.current_card_index.and_then(|index: usize| self.program.cards.get(index))
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -164,7 +168,6 @@ pub enum TestCaseExecutionState {
 #[cfg(test)]
 mod tests {
     use crate::execution::TestCaseExecution;
-    use crate::levels::{night_time, sandbox};
     use crate::program::{Card, Instruction, Program};
     use crate::program::Direction::Right;
 

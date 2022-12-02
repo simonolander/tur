@@ -15,23 +15,41 @@ pub struct LevelDto {
     target: Option<TargetDto>,
 }
 
-impl Into<Level> for LevelDto {
-    fn into(self) -> Level {
-        let cases = if self.cases.is_empty() {
+impl From<LevelDto> for Level {
+    fn from(dto: LevelDto) -> Self {
+        let cases = if dto.cases.is_empty() {
             vec![TestCase::default()]
         } else {
-            self.cases
+            dto.cases
                 .iter()
                 .map(|tc: &TestCaseDto| TestCase {
                     initial_tape: tc.initial_tape.iter().copied().collect(),
-                    target: tc.target.clone().or(self.target.clone()).map(|target| Target::from(&target)),
+                    target: tc.target.clone().or(dto.target.clone()).map(|target| Target::from(&target)),
                 })
                 .collect()
         };
         Level {
-            name: self.name,
-            description: self.description,
+            name: dto.name,
+            description: dto.description,
             cases,
+        }
+    }
+}
+
+impl From<Level> for LevelDto {
+    fn from(level: Level) -> Self {
+        let to_test_case_dto = |test_case: TestCase| {
+            TestCaseDto {
+                initial_tape: test_case.initial_tape.iter().copied().collect(),
+                target: test_case.target.map(TargetDto::from),
+            }
+        };
+
+        LevelDto {
+            name: level.name,
+            description: level.description,
+            cases: level.cases.into_iter().map(to_test_case_dto).collect(),
+            target: None,
         }
     }
 }
@@ -60,6 +78,15 @@ impl From<&TargetDto> for Target {
             Position { position } => Target::Position {
                 position: *position,
             },
+        }
+    }
+}
+
+impl From<Target> for TargetDto {
+    fn from(target: Target) -> Self {
+        match target {
+            Target::TapeExact { tape } => TapeExact { tape: tape.iter().copied().collect() },
+            Target::Position { position } => Position { position }
         }
     }
 }
