@@ -260,7 +260,7 @@ fn program_list() -> Result<()> {
         table.add_row(row![program.name, "builtin"]);
     }
     if !table.is_empty() {
-        table.printstd();
+        Term::stdout().write_line(&table.to_string())?;
     } else {
         Term::stdout().write_line("No programs found. You can create programs by running:")?;
         Term::stdout().write_line("")?;
@@ -290,7 +290,7 @@ fn level_list() -> Result<()> {
         let level: Level = dto.into();
         table.add_row(row![level.name, false, "custom"]);
     }
-    table.printstd();
+    Term::stdout().write_line(&table.to_string())?;
     Ok(())
 }
 
