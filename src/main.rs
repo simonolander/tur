@@ -44,15 +44,20 @@ enum Command {
         #[command(subcommand)]
         resource: GetResource,
     },
-    /// Operations related to levels
-    Level {
+    /// Create things
+    Create {
         #[command(subcommand)]
-        command: LevelCommand,
+        resource: CreateResource,
     },
-    /// Program CRUD
-    Program {
+    /// Delete things
+    Delete {
         #[command(subcommand)]
-        command: ProgramCommand,
+        resource: DeleteResource,
+    },
+    /// Edit things
+    Edit {
+        #[command(subcommand)]
+        resource: EditResource,
     },
     /// Executes a program on a level
     Exec {
@@ -76,13 +81,40 @@ enum Command {
 enum GetResource {
     /// Get all or specific program
     Program {
-        /// If specified, gets program with matching name
+        /// (Optional) Name of program
         name: Option<String>,
     },
     /// Get all or specific program
     Level {
-        /// If specified, gets program with matching name
+        /// (Optional) Name of level
         name: Option<String>,
+    },
+}
+
+#[derive(Subcommand)]
+enum CreateResource {
+    /// Create a new program
+    Program {
+        /// Name of program
+        name: String,
+    },
+}
+
+#[derive(Subcommand)]
+enum DeleteResource {
+    /// Delete a program
+    Program {
+        /// Name of program
+        name: String,
+    },
+}
+
+#[derive(Subcommand)]
+enum EditResource {
+    /// Edit a program
+    Program {
+        /// Name of program
+        name: String,
     },
 }
 
@@ -91,26 +123,37 @@ enum LevelCommand {
     List,
 }
 
-#[derive(Subcommand)]
-enum ProgramCommand {
-    Create { name: String },
-    List,
-    Edit { name: String },
-    Delete { name: String },
-}
-
 fn main() {
     let cli = Cli::parse();
     let result = match cli.command {
-        Command::Level { command } => level(command),
-        Command::Program { command } => program(command),
         Command::Get { resource } => get_resource(&resource),
         Command::Exec { program, level, sleep, test_case } =>
-            run(&program, &level, sleep, test_case)
+            run(&program, &level, sleep, test_case),
+        Command::Create { resource } => create_resource(&resource),
+        Command::Delete { resource } => delete_resource(&resource),
+        Command::Edit { resource } => edit_resource(&resource),
     };
 
     if let Err(err) = result {
         Term::stdout().write_line(&err.to_string()).unwrap();
+    }
+}
+
+fn create_resource(resource: &CreateResource) -> Result<()> {
+    match resource {
+        CreateResource::Program { name } => program_create(name)
+    }
+}
+
+fn edit_resource(resource: &EditResource) -> Result<()> {
+    match resource {
+        EditResource::Program { name } => program_edit(name)
+    }
+}
+
+fn delete_resource(resource: &DeleteResource) -> Result<()> {
+    match resource {
+        DeleteResource::Program { name } => program_delete(name)
     }
 }
 
@@ -145,15 +188,6 @@ fn get_level(level_name: &str) -> Result<()> {
     let serialized = serde_yaml::to_string(&dto)?;
     Term::stdout().write_line(&serialized)?;
     Ok(())
-}
-
-fn program(command: ProgramCommand) -> Result<()> {
-    match command {
-        ProgramCommand::Create { name } => program_create(&name),
-        ProgramCommand::Edit { name } => program_edit(&name),
-        ProgramCommand::Delete { name } => program_delete(&name),
-        ProgramCommand::List => program_list(),
-    }
 }
 
 fn program_create(name: &str) -> Result<()> {
