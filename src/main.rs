@@ -60,6 +60,10 @@ enum Command {
         /// Amount of milliseconds to sleep between each step
         #[arg(short, long, default_value_t = 500)]
         sleep: u64,
+
+        /// Test case to start with
+        #[arg(short, long, default_value_t = 0)]
+        test_case: usize,
     },
 }
 
@@ -81,7 +85,7 @@ fn main() {
     let result = match cli.command {
         Command::Level { command } => level(command),
         Command::Program { command } => program(command),
-        Command::Run { program, level, sleep } => run(&program, &level, sleep),
+        Command::Run { program, level, sleep, test_case } => run(&program, &level, sleep, test_case),
     };
 
     if let Err(err) = result {
@@ -202,10 +206,11 @@ fn level_list() -> Result<()> {
     Ok(())
 }
 
-fn run(program_name: &str, level_name: &str, sleep: u64) -> Result<()> {
+fn run(program_name: &str, level_name: &str, sleep: u64, test_case_index: usize) -> Result<()> {
     let sleep_duration = Duration::from_millis(max(sleep, 10));
-    let level = find_level(level_name)
+    let mut level = find_level(level_name)
         .ok_or_else(|| Error::msg(format!("Level {} not found", level_name)))?;
+    level.cases = level.cases[test_case_index..].to_vec();
     let program = find_program(program_name)?
         .ok_or_else(|| Error::msg(format!("Program {} not found", program_name)))?;
     let mut execution = LevelExecution::new(level, program);
