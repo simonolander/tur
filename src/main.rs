@@ -17,7 +17,6 @@ use prettytable::{row, Table};
 use crate::execution::LevelExecution;
 use crate::level::Level;
 use crate::level_dto::LevelDto;
-use crate::levels::builtins;
 use crate::program::Program;
 use crate::program_dto::ProgramDto;
 use crate::render::{render, render_tce};
@@ -55,11 +54,12 @@ enum Command {
         #[command(subcommand)]
         command: ProgramCommand,
     },
-    /// Run a program on a level
-    Run {
-        #[arg(short, long)]
+    /// Executes a program on a level
+    Exec {
+        /// Name of program to execute
         program: String,
-        #[arg(short, long)]
+
+        /// Name of level to execute on
         level: String,
 
         /// Amount of milliseconds to sleep between each step
@@ -76,6 +76,11 @@ enum Command {
 enum GetResource {
     /// Get all or specific program
     Program {
+        /// If specified, gets program with matching name
+        name: Option<String>,
+    },
+    /// Get all or specific program
+    Level {
         /// If specified, gets program with matching name
         name: Option<String>,
     },
@@ -99,8 +104,9 @@ fn main() {
     let result = match cli.command {
         Command::Level { command } => level(command),
         Command::Program { command } => program(command),
-        Command::Run { program, level, sleep, test_case } => run(&program, &level, sleep, test_case),
-        Command::Get { resource } => get_resource(&resource)
+        Command::Get { resource } => get_resource(&resource),
+        Command::Exec { program, level, sleep, test_case } =>
+            run(&program, &level, sleep, test_case)
     };
 
     if let Err(err) = result {
@@ -115,13 +121,27 @@ fn get_resource(resource: &GetResource) -> Result<()> {
                 None => program_list(),
                 Some(name) => get_program(name),
             },
+        GetResource::Level { name } =>
+            match name {
+                None => level_list(),
+                Some(name) => get_level(name)
+            }
     }
 }
 
-fn get_program(name: &str) -> Result<()> {
-    let program = find_program(name)?
-        .ok_or(Error::msg(format!("Program {} not found", name)))?;
+fn get_program(program_name: &str) -> Result<()> {
+    let program = find_program(program_name)?
+        .ok_or(Error::msg(format!("Program {} not found", program_name)))?;
     let dto = ProgramDto::from(program);
+    let serialized = serde_yaml::to_string(&dto)?;
+    Term::stdout().write_line(&serialized)?;
+    Ok(())
+}
+
+fn get_level(level_name: &str) -> Result<()> {
+    let level = find_level(level_name)
+        .ok_or(Error::msg(format!("Level {} not found", level_name)))?;
+    let dto = LevelDto::from(level);
     let serialized = serde_yaml::to_string(&dto)?;
     Term::stdout().write_line(&serialized)?;
     Ok(())
@@ -227,7 +247,7 @@ fn level_list() -> Result<()> {
     let dir = read_dir(level_dir)?;
     let mut table = Table::new();
     table.set_titles(row!["Name", "Solved", "Type"]);
-    for level in builtins() {
+    for level in levels::builtins() {
         table.add_row(row![level.name, false, "builtin"]);
     }
     for entry in dir {
@@ -259,8 +279,8 @@ fn run(program_name: &str, level_name: &str, sleep: u64, test_case_index: usize)
     Ok(())
 }
 
-fn find_level(name: &str) -> Option<Level> {
-    builtins().into_iter().find(|level| level.name == name)
+fn find_level(level_name: &str) -> Option<Level> {
+    levels::builtins().into_iter().find(|level| level.name == level_name)
 }
 
 fn find_program(name: &str) -> Result<Option<Program>> {

@@ -13,7 +13,7 @@ pub struct TestCase {
     pub target: Option<Target>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq)]
 pub enum Target {
     TapeExact { tape: HashSet<i64> },
     Position { position: i64 },
