@@ -75,6 +75,11 @@ pub fn render_tce(term: &Term, tce: &TestCaseExecution) -> Result<()> {
         number_line += &format!("{:<16}", from + n * 16);
     }
     term.write_line(&number_line)?;
+
+    if let Some(card) = tce.get_current_card() {
+        term.write_line(&format!("Current card: {}", card.name))?;
+    }
+
     Ok(())
 }
 
