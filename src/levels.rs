@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use crate::level::{Level, Target, TestCase};
 use crate::level::Target::Position;
 use crate::level_dto::LevelDto;
@@ -12,10 +13,19 @@ fn move_eight_right() -> Level {
     Level {
         name: "move8".to_string(),
         description: "Move eight steps to the right, and terminate the program".to_string(),
-        cases: vec![TestCase {
-            initial_tape: Default::default(),
-            target: Some(Target::position(8)),
-        }],
+        cases: vec![
+            TestCase {
+                initial_tape: vec![8].into_iter().collect(),
+                target: Some(Target::position(8)),
+            },
+            TestCase {
+                initial_tape: Default::default(),
+                target: Some(Target::position(8)),
+            },TestCase {
+                initial_tape: vec![2, 3, 5, 7, 11, 13].into_iter().collect(),
+                target: Some(Target::position(8)),
+            }
+        ],
     }
 }
 
