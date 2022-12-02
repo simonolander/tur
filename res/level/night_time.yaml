@@ -1,0 +1,12 @@
+name: night_time
+description: At some point >= 0, there's a light on. Turn it off.
+cases:
+  - initial_tape:
+      - 3
+  - initial_tape:
+      - 8
+  - initial_tape:
+      - 0
+target:
+  type: TapeExact
+  tape: []

@@ -1,0 +1,22 @@
+name: PROGRAM_NAME
+description: Move back and forth, toggling the lights
+initial_card: A
+cards:
+  - name: A
+    instruction_on:
+      write_symbol: false
+      move_direction: Right
+      next_card: B
+    instruction_off:
+      write_symbol: true
+      move_direction: Right
+      next_card: B
+  - name: B
+    instruction_on:
+      write_symbol: false
+      move_direction: Left
+      next_card: A
+    instruction_off:
+      write_symbol: true
+      move_direction: Left
+      next_card: null
